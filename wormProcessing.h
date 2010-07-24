@@ -6,7 +6,6 @@
 void processingInit(int w, int h);
 void processingCleanup(void);
 const CvMat* isolateWorms(const IplImage* input);
-void findCircles(const IplImage* input, CvPoint* left, CvPoint* right);
 void computeWormOccupancy(const CvMat* isolatedWorms,
                           const CvPoint* leftCircle, const CvPoint* rightCircle,
                           int circleRadius,

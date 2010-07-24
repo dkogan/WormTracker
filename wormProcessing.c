@@ -53,14 +53,6 @@ const CvMat* isolateWorms(const IplImage* input)
     return workImageInt;
 }
 
-void findCircles(const IplImage* input, CvPoint* left, CvPoint* right)
-{
-    left->x  = 120;
-    left->y  = 240;
-    right->x = 360;
-    right->y = 240;
-}
-
 static double computeOccupancySingleCircle(const CvMat* isolatedWorms,
                                            const CvPoint* circle, int circleRadius)
 {
