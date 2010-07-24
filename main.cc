@@ -25,6 +25,7 @@ extern "C"
 
 #define CIRCLE_RADIUS 60
 #define CIRCLE_COLOR CV_RGB(0xFF, 0, 0)
+#define FRAME_RATE_FPS       15
 
 static FrameSource*  source;
 static CvFltkWidget* widgetImage;
@@ -118,7 +119,7 @@ int main(int argc, char* argv[])
 
     // I read the data with a tiny delay. This makes sure that I skip old frames (only an issue if I
     // can't keep up with the data rate), but yet got as fast as I can
-    source->startSourceThread(&gotNewFrame, 1e6/15, buffer);
+    source->startSourceThread(&gotNewFrame, 1e6/FRAME_RATE_FPS, buffer);
 
     while (Fl::wait())
     {
