@@ -62,7 +62,7 @@ static inline void ca_rect(double x, double y, double w, double h){
   fl_vertex(x+w,y+h);
   fl_vertex(x,y+h);
   fl_end_loop();
-};
+}
 
 static inline void ca_rectf(double x, double y, double w, double h){
   fl_begin_polygon();
@@ -71,43 +71,43 @@ static inline void ca_rectf(double x, double y, double w, double h){
   fl_vertex(x+w,y+h);
   fl_vertex(x,y+h);
   fl_end_polygon();
-};
+}
 
 static inline void ca_loop(double x1, double y1, double x2, double y2, double x3, double y3){
   fl_begin_loop();
   fl_vertex(x1,y1); fl_vertex(x2,y2); fl_vertex(x3,y3);
   fl_end_loop();
-};
+}
 
 static inline void ca_polygon(double x1, double y1, double x2, double y2, double x3, double y3){
   fl_begin_polygon();
   fl_vertex(x1,y1); fl_vertex(x2,y2); fl_vertex(x3,y3);
   fl_end_polygon();
-};
+}
 
 static inline void ca_loop(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4){
   fl_begin_loop();
   fl_vertex(x1,y1); fl_vertex(x2,y2); fl_vertex(x3,y3); fl_vertex(x4,y4);
   fl_end_loop();
-};
+}
 
 static inline void ca_polygon(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4){
   fl_begin_polygon();
   fl_vertex(x1,y1); fl_vertex(x2,y2); fl_vertex(x3,y3); fl_vertex(x4,y4);
   fl_end_polygon();
-};
+}
 
 static inline void ca_text(const char  *label, double x, double y){
   fl_draw(label,(int)(x+.5),(int)(y+.5));
-};
+}
 static inline void ca_point(double x, double y){
   fl_point((int)(x+.5),(int)(y+.5));
-};
+}
 
 /*
 static inline void ca_pie(double x, double y, double w, double h, double a1, double a2){
 fl_pie((int)(x+.5), (int)(y+.5),(int)(w+.5),(int)(h+.5),0,270.0);
-};
+}
 */
 
 static inline void ca_filled_circle(double x, double y, double r){
@@ -115,11 +115,11 @@ static inline void ca_filled_circle(double x, double y, double r){
   //fl_arc(x,y,r,0,360);
   fl_circle(x,y,r);
   fl_end_polygon();
-};
+}
 
 static inline void ca_text(const char  *label, double x, double y, double w, double h, Fl_Align align){
   fl_draw(label, (int)(x+.5), (int)(y+.5), (int)(w+.5), (int)(h+.5), align);
-};
+}
 
 
 
@@ -140,7 +140,7 @@ void Ca_Axis_::minimum(double x){
     canvas_->damage(CA_DAMAGE_ALL);
   update();
 
-};
+}
 
 void Ca_Axis_::maximum(double x){
   //if(max_==x) return;
@@ -154,7 +154,7 @@ void Ca_Axis_::maximum(double x){
     canvas_->damage(CA_DAMAGE_ALL);
   update();
 
-};
+}
 
 
 int Ca_Axis_::update(){
@@ -178,7 +178,7 @@ int Ca_Axis_::update(){
       return 1;
     else
       return 0;
-};
+}
 
 void Ca_Axis_::rescale_move(int when, double  x){
 
@@ -205,7 +205,7 @@ void Ca_Axis_::rescale_move(int when, double  x){
       canvas_->damage(CA_DAMAGE_ALL);
   }
   valid_=1;
-};
+}
 
 double Ca_Axis_::position(double value){
 
@@ -214,7 +214,7 @@ double Ca_Axis_::position(double value){
     return (int)(q_+k_*log(value));
   else
     return min_pos_+k_*(value-min_);
-};
+}
 
 double Ca_Axis_::value(double pos){
   if (max_==min_)
@@ -223,7 +223,7 @@ double Ca_Axis_::value(double pos){
     return exp((pos-q_)/k_);
   else
     return (min_ +(pos-min_pos_)/k_);
-};
+}
 
 
 
@@ -340,7 +340,7 @@ int Ca_Axis_::next_tick(int &tick_index, double &tick_value, int &tick_order, do
       }
     }
   }		/////   Uf, this is the end of the leg-less beast!   //////
-};
+}
 
 
 
@@ -367,7 +367,7 @@ void Ca_Axis_::rescale(int when, double  x){
     if(canvas_)
       canvas_->damage(CA_DAMAGE_ALL);
   }
-};
+}
 
 Ca_Axis_::Ca_Axis_(int x, int y, int w, int h, const char * label)
 :Fl_Box(x,y,w,h,label),
@@ -390,7 +390,7 @@ min_(0),max_(0),min_pos_(0),max_pos_(0),border_(AXIS_BORDER),axis_color_(FL_BLAC
     canvas_->last_axis_=this;
   }
   labelsize(LABEL_SIZE);
-};
+}
 
 Ca_Axis_::~Ca_Axis_(){
 
@@ -406,8 +406,8 @@ Ca_Axis_::~Ca_Axis_(){
       }
       axis=axis->previous_axis_;
     }
-  };
-};
+  }
+}
 
 
 
@@ -428,7 +428,7 @@ int Ca_X_Axis::min_pos(){
   else
     return W_->x()+BD+Fl::box_dx(W_->box());
 
-};
+}
 
 int Ca_X_Axis::max_pos(){
   int BD = 0;
@@ -444,7 +444,7 @@ int Ca_X_Axis::max_pos(){
   else
     return W_->x()+W_->w()-BD+Fl::box_dx(W_->box())-Fl::box_dw(W_->box());
 
-};
+}
 
 
 void Ca_X_Axis::draw(){
@@ -589,13 +589,13 @@ void Ca_X_Axis::draw(){
     fl_line_style(0,0);
     //  fl_pop_clip();
   }
-};
+}
 
 
 void Ca_X_Axis::current(){
   if(canvas_)
     canvas_->current_x(this);
-};
+}
 
 void Ca_X_Axis::draw_grid(){
   if(!valid_)return;
@@ -704,14 +704,14 @@ void Ca_X_Axis::draw_grid(){
   }
   fl_line_style(0,0);
   fl_color(FL_BLACK);
-};
+}
 
 
 
 Ca_X_Axis::Ca_X_Axis(int x, int y, int w, int h, const char *label):Ca_Axis_(x, y, w,  h,  label){
   if(canvas_ && !(canvas_->current_x()))
     current();
-};
+}
 
 
 Ca_X_Axis::~Ca_X_Axis(){
@@ -752,7 +752,7 @@ int Ca_Y_Axis::min_pos(){
   else
     return W_->y()+W_->h()-BD+Fl::box_dy(W_->box())-Fl::box_dh(W_->box());
 
-};
+}
 
 int Ca_Y_Axis::max_pos(){
   int BD = 0;
@@ -769,7 +769,7 @@ int Ca_Y_Axis::max_pos(){
     return W_->y()+BD+Fl::box_dy(W_->box());
 
 
-};
+}
 
 void Ca_Y_Axis::draw(){
   if(min_==max_) return;
@@ -902,13 +902,13 @@ void Ca_Y_Axis::draw(){
     fl_line_style(0);
     fl_pop_clip();
   }
-};
+}
 
 
 void Ca_Y_Axis::current(){
   if(canvas_)
     canvas_->current_y(this);
-};
+}
 
 
 
@@ -1018,14 +1018,14 @@ void Ca_Y_Axis::draw_grid(){
 
   fl_line_style(0,0);
   fl_color(FL_BLACK);
-};
+}
 
 
 Ca_Y_Axis::Ca_Y_Axis(int x, int y, int w, int h, const char * label):Ca_Axis_(x, y, w,  h,  label){
   if(canvas_ && !(canvas_->current_y()))
     current();
   axis_align(CA_LEFT);
-};
+}
 
 Ca_Y_Axis::~Ca_Y_Axis(){
   if(canvas_){
@@ -1104,20 +1104,20 @@ void Ca_Canvas::draw(){
 
   if (damage_&FL_DAMAGE_ALL)
     draw_label();
-};
+}
 
 
 
 void Ca_Canvas::add_object(Ca_Object_ * object){
   last_object_=last_object_->next=new Ca_ObjectChain();
   last_object_->object=object;
-};
+}
 
 void Ca_Canvas::clear(){
   while(first_object_)
     delete first_object_->object;
   damage(CA_DAMAGE_ALL);
-};
+}
 
 Ca_Canvas::Ca_Canvas(int x, int y, int w, int h, const char *label)
 :Fl_Box(x,y,w,h,label),
@@ -1126,7 +1126,7 @@ first_object_(0),last_object_(0),last_plotted_(0), dx_(0), dy_(0), dw_(0), dh_(0
 {
 
   current(this);
-};
+}
 
 void Ca_Canvas::border(int border){
   border_=border;
@@ -1136,7 +1136,7 @@ void Ca_Canvas::border(int border){
     axis->damage(CA_DAMAGE_ALL);
     axis=axis->previous_axis_;
   }
-};
+}
 
 Ca_Canvas::~Ca_Canvas(){
   clear();
@@ -1146,7 +1146,7 @@ Ca_Canvas::~Ca_Canvas(){
     axis->canvas_=0;
     axis = last_axis_;
   }
-};
+}
 
 
 
@@ -1169,7 +1169,7 @@ Ca_Object_::Ca_Object_(Ca_Canvas * canvas)
   x_axis_=canvas_->current_x();
   y_axis_=canvas_->current_y();
   canvas_->damage(CA_DAMAGE_ADD);
-};
+}
 
 
 Ca_Object_::~Ca_Object_(){
@@ -1188,7 +1188,7 @@ Ca_Object_::~Ca_Object_(){
   delete objectchain;
   canvas_->last_plotted_=0;
   canvas_->damage(CA_DAMAGE_ALL);
-};
+}
 
 
 
@@ -1259,7 +1259,7 @@ void Ca_Point::draw(){
     }
     break;
   }
-};
+}
 
 Ca_Point::Ca_Point(double _x, double _y, Fl_Color _color, int _style, int _size, Fl_Color _border_color, int _border_width)
 :Ca_Object_(0),
@@ -1272,7 +1272,7 @@ border_color(_border_color),
 border_width(_border_width)
 
 {
-};
+}
 
 ////////////////////////////  Ca_LinePoint  ////////////////////////////////////////////////////////
 
@@ -1288,12 +1288,12 @@ void Ca_LinePoint::draw(){
     fl_line_style(0,0);
   }
 
-};
+}
 
 Ca_LinePoint::Ca_LinePoint( Ca_LinePoint *_previous, double _x, double _y,int _line_width, Fl_Color color, int style, int size, Fl_Color border_color, int _border_width):Ca_Point(_x, _y, color, style, size, border_color, _border_width){
   previous=_previous;
   line_width=_line_width;
-};
+}
 
 Ca_LinePoint::Ca_LinePoint(Ca_LinePoint *_previous, double _x, double _y)
 :Ca_Point(_x, _y, previous->color, previous->style, previous->size,previous->border_color, previous->border_width),
@@ -1303,7 +1303,7 @@ previous(_previous)
     line_width=_previous->line_width;
   else
     line_width=0;
-};
+}
 
 
 ////////////////////////////  Ca_PolyLine  ////////////////////////////////////////////////////////
@@ -1316,16 +1316,16 @@ line_style(_line_style)
   next=0;
   if(_previous) _previous->next=this;
   canvas_->damage(CA_DAMAGE_ALL);
-};
+}
 
-Ca_PolyLine::Ca_PolyLine(Ca_PolyLine *_previous, double _x, double _y):Ca_LinePoint(_previous,x,y){
+Ca_PolyLine::Ca_PolyLine(Ca_PolyLine *_previous, double _x __attribute__((unused)), double _y __attribute__((unused))):Ca_LinePoint(_previous,x,y){
   next=0;
   if(_previous){
     line_style=_previous->line_style;
     _previous->next=this;
   }
   canvas_->damage(CA_DAMAGE_ALL);
-};
+}
 
 void Ca_PolyLine::draw(){
   Ca_Point::draw();
@@ -1355,7 +1355,7 @@ void Ca_PolyLine::draw(){
   }
   fl_end_line();
   fl_line_style(0,0);
-};
+}
 
 
 
@@ -1366,7 +1366,7 @@ line_width(_line_width),
 n(_n),
 data(_data),
 data_2(_data_2)
-{};
+{}
 
 Ca_Line::Ca_Line(int _n, double *_data, int _line_style, int _line_width, Fl_Color color, int style, int size, Fl_Color border_color, int border_width)
 :Ca_Point(0, 0, color, style, size, border_color, border_width),
@@ -1375,7 +1375,7 @@ line_width(_line_width),
 n(_n),
 data(_data),
 data_2(0)
-{};
+{}
 
 void Ca_Line::draw(){
   fl_color(color);
@@ -1404,7 +1404,7 @@ void Ca_Line::draw(){
   }
   fl_line_style(0,0);
 
-};
+}
 
 
 
@@ -1436,7 +1436,7 @@ void Ca_Text::draw(){
   fl_color(label_color);
   fl_font(label_font,label_size);
   ca_text(label,X,Y,W,H,(Fl_Align)align_);
-};
+}
 
 
 Ca_Text::Ca_Text(double _x1, double _x2, double _y1, double _y2, const char *_label, uchar _align, Fl_Font _label_font, int _label_size, Fl_Color _label_color)
@@ -1447,7 +1447,7 @@ align(_align),
 label_color(_label_color),
 label_font(_label_font),
 label_size(_label_size)
-{};
+{}
 
 Ca_Text::Ca_Text(double x, double y,char *_label, uchar _align, Fl_Font _label_font, int _label_size, Fl_Color _label_color)
 :Ca_Object_(0),
@@ -1457,7 +1457,7 @@ align(_align),
 label_color(_label_color),
 label_font(_label_font),
 label_size(_label_size)
-{};
+{}
 
 
 
@@ -1526,7 +1526,7 @@ void Ca_Bar::draw(){
   fl_color(label_color);
   fl_font(label_font,label_size);
   ca_text(label,X,Y,W,H,(Fl_Align)align_);
-};
+}
 
 
 
@@ -1540,4 +1540,4 @@ color(_color),
 border_color(_border_color),
 border_width(_border_width)
 {
-};
+}
