@@ -58,12 +58,6 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
         cvCircle(*widgetImage, rightCircleCenter, CIRCLE_RADIUS, CIRCLE_COLOR, 1, 8);
     }
 
-    Fl::lock();
-    {
-        widgetImage->redrawNewFrame();
-    }
-    Fl::unlock();
-
     double leftOccupancy, rightOccupancy;
     computeWormOccupancy(result, &leftCircleCenter, &rightCircleCenter,
                          CIRCLE_RADIUS,
@@ -75,7 +69,13 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
     char countsString[128];
     snprintf(countsString, sizeof(countsString), "%.3f %.3f",
              leftOccupancy, rightOccupancy);
-    counts->value(countsString);
+
+    Fl::lock();
+    {
+        widgetImage->redrawNewFrame();
+        counts->value(countsString);
+    }
+    Fl::unlock();
 }
 
 #define CROP_RECT cvRect(80, 0, 480, 480)
