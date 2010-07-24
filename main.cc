@@ -47,15 +47,10 @@ static CvFltkWidget* widgetImage;
 static Fl_Button*    goResetButton;
 static Fl_PlotXY*    plot;
 
-// Analysis currently running
-#define RUNNING_ANALYSIS (goResetButton->type() == FL_TOGGLE_BUTTON && !goResetButton->value())
+// the analysis could be idle, running, or idle examining data (STOPPED)
+static enum { RESET, RUNNING, STOPPED } analysisState;
 
-// Analysis not running. Looking at the data I just got
-#define STOPPED_ANALYSIS (goResetButton->type() == FL_NORMAL_BUTTON)
-
-// Analysis not running. Don't have data
-#define RESET_ANALYSIS   (goResetButton->type() == FL_TOGGLE_BUTTON &&  goResetButton->value())
-
+static int     numPoints;
 static int     leftPlotIndex, rightPlotIndex;
 static CvPoint leftCircleCenter    = cvPoint(-1, -1);
 static CvPoint rightCircleCenter   = cvPoint(-1, -1);
@@ -84,13 +79,23 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
     if(HAVE_POINTED_CIRCLE)
         cvCircle(*widgetImage, pointedCircleCenter, CIRCLE_RADIUS, POINTED_CIRCLE_COLOR, 1, 8);
 
-    double leftOccupancy, rightOccupancy;
-    computeWormOccupancy(result, &leftCircleCenter, &rightCircleCenter,
-                         CIRCLE_RADIUS,
-                         &leftOccupancy, &rightOccupancy);
-
+    // This critical section is likely larger than it needs to be, but this keeps me safe. The
+    // analysis state can change in the FLTK thread, so I err on the side of safety
     Fl::lock();
     {
+        if(analysisState == RUNNING)
+        {
+            double leftOccupancy, rightOccupancy;
+            computeWormOccupancy(result, &leftCircleCenter, &rightCircleCenter,
+                                 CIRCLE_RADIUS,
+                                 &leftOccupancy, &rightOccupancy);
+
+            plot->add(leftPlotIndex,  numPoints, leftOccupancy);
+            plot->add(rightPlotIndex, numPoints, rightOccupancy);
+            numPoints++;
+            plot->redraw();
+        }
+
         widgetImage->redrawNewFrame();
     }
     Fl::unlock();
@@ -98,13 +103,26 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
 
 static void widgetImageCallback(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
 {
+    if(Fl::event() == FL_LEAVE)
+    {
+        // I want to make sure to never miss this, so I handle it unconditionally
+        pointedCircleCenter.x = pointedCircleCenter.y = -1;
+        return;
+    }
+
+    if(analysisState == RUNNING)
+    {
+        pointedCircleCenter.x = pointedCircleCenter.y = -1;
+        return;
+    }
+
     bool onLeftHalf = (Fl::event_x() - widget->x()) < FRAME_W/2;
     switch(Fl::event())
     {
     case FL_MOVE:
         pointedCircleCenter.x = Fl::event_x() - widget->x();
         pointedCircleCenter.y = Fl::event_y() - widget->y();
-        return;
+        break;
 
     case FL_LEAVE:
         pointedCircleCenter.x = pointedCircleCenter.y = -1;
@@ -127,37 +145,50 @@ static void widgetImageCallback(Fl_Widget* widget __attribute__((unused)), void*
 
     default: ;
     }
+
+    if(HAVE_CIRCLES && analysisState == RESET)
+        goResetButton->activate();
 }
 
-static void goResetButton_setResetAnalysis(void)
+static void setResetAnalysis(void)
 {
     goResetButton->labelfont(FL_HELVETICA_BOLD);
     goResetButton->labelcolor(FL_RED);
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Analyze");
+
+    analysisState = RESET;
 }
 
-static void goResetButton_setRunningAnalysis(void)
+static void setRunningAnalysis(void)
 {
     goResetButton->labelfont(FL_HELVETICA);
     goResetButton->labelcolor(FL_BLACK);
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Stop analysis");
+
+    pointedCircleCenter.x = pointedCircleCenter.y = -1;
+    numPoints = 0;
+    plot->clearall();
+
+    analysisState = RUNNING;
 }
 
-static void goResetButton_setStoppedAnalysis(void)
+static void setStoppedAnalysis(void)
 {
     goResetButton->labelfont(FL_HELVETICA);
     goResetButton->labelcolor(FL_BLACK);
     goResetButton->type(FL_NORMAL_BUTTON);
     goResetButton->label("Reset analysis data");
+
+    analysisState = STOPPED;
 }
 
 static void pressedGoReset(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
 {
-    if     (RUNNING_ANALYSIS) goResetButton_setStoppedAnalysis();
-    else if(STOPPED_ANALYSIS) goResetButton_setResetAnalysis();
-    else                      goResetButton_setRunningAnalysis();
+    if     (analysisState == RUNNING) setStoppedAnalysis();
+    else if(analysisState == STOPPED) setResetAnalysis();
+    else                              setRunningAnalysis();
 }
 
 int main(int argc, char* argv[])
@@ -187,7 +218,7 @@ int main(int argc, char* argv[])
     widgetImage->callback(widgetImageCallback);
 
     goResetButton = new Fl_Button( 0, source->h(), BUTTON_W, BUTTON_H);
-    goResetButton_setResetAnalysis();
+    setResetAnalysis();
     goResetButton->callback(pressedGoReset);
     goResetButton->deactivate();
 
