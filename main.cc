@@ -259,7 +259,8 @@ static void setRunningAnalysis(void)
     if(AM_READING_CAMERA)
     {
         char filename[256];
-        snprintf(filename, sizeof(filename), "experiment.%s.avi", ctime(time(NULL)));
+        time_t tnow = time(NULL);
+        snprintf(filename, sizeof(filename), "experiment.%s.avi", ctime(&tnow));
 
         videoEncoder.close();
         videoEncoder.open(filename, source->w(), source->h(), VIDEO_ENCODING_FPS, FRAMESOURCE_COLOR);
