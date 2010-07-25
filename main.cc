@@ -80,7 +80,7 @@ static CvPoint       pointedCircleCenter = cvPoint(-1, -1);
 #define HAVE_CIRCLES        (HAVE_LEFT_CIRCLE && HAVE_RIGHT_CIRCLE)
 #define HAVE_POINTED_CIRCLE (pointedCircleCenter.x > 0 && pointedCircleCenter.y > 0)
 
-void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused)))
+bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused)))
 {
     cvMerge(buffer, buffer, buffer, NULL, *widgetImage);
 
