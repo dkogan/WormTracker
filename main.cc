@@ -280,9 +280,7 @@ int main(int argc, char* argv[])
     // To read a camera, the last cmdline argument must be 0x..., we use it as the camera GUID
     // Otherwise we try to load any camera
     if(argc < 2)
-    {
         source = new CameraSource (FRAMESOURCE_GRAYSCALE, false, 0, CROP_RECT);
-    }
     else if(strncmp(argv[argc-1], "0x", 2) == 0)
     {
         assert(sizeof(long long unsigned int) == sizeof(uint64_t));
