@@ -35,7 +35,7 @@ extern "C"
 #define FRAME_W       480
 #define FRAME_H       480
 #define CROP_RECT     cvRect(80, 0, FRAME_W, FRAME_H)
-#define WINDOW_W      800
+#define WINDOW_W      1000
 #define WINDOW_H      (FRAME_H + BUTTON_H + PLOT_H + X_AXIS_HEIGHT + AXIS_EXTRA_SPACE)
 #define BUTTON_W      100
 #define BUTTON_H      30
