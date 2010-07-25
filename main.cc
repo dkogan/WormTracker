@@ -305,10 +305,10 @@ static void pressedChdir(Fl_Widget* widget __attribute__((unused)), void* cookie
     char* dir = fl_dir_chooser("Choose new output directory", "", 0);
     if(dir != NULL)
     {
-        if(chdir(dir) != 0)
-        {
+        if(chdir(dir) == 0)
+            updateChdirButtonLabel();
+        else
             fl_alert("Couldn't switch to selected directory %s", dir);
-        }
     }
 }
 
