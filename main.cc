@@ -302,7 +302,10 @@ int main(int argc, char* argv[])
     // I read the data with a tiny delay. This makes sure that I skip old frames (only an issue if I
     // can't keep up with the data rate), but yet got as fast as I can
     IplImage* buffer = cvCreateImage(cvSize(source->w(), source->h()), IPL_DEPTH_8U, 1);
-    source->startSourceThread(&gotNewFrame, 1e6/PLAYBACK_FRAME_RATE_FPS, buffer);
+
+    // If reading from a stored video file, go as fast as possible
+    if(AM_READING_CAMERA) source->startSourceThread(&gotNewFrame, 1e6/DATA_FRAME_RATE_FPS, buffer);
+    else                  source->startSourceThread(&gotNewFrame, 0,                       buffer);
 
     while (Fl::wait())
     {
