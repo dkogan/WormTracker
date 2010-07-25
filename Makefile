@@ -23,7 +23,7 @@ LDLIBS += -lfltk $(OPENCV_LIBS) -lpthread -ldc1394 $(FFMPEG_LIBS) ../fltkVisionU
 all: worm3
 
 SOURCE_WILDCARD = *.cc *.c *.cpp
-SOURCES = $(wildcard $(SOURCE_WILDCARD) $(patsubst %,cartesian/%, $(SOURCE_WILDCARD)))
+SOURCES = $(wildcard $(SOURCE_WILDCARD) $(patsubst %,cartesian/%, $(SOURCE_WILDCARD)) $(patsubst %,Fl_Rotated_Text/%, $(SOURCE_WILDCARD)))
 
 SOURCE_OBJECTS = $(addsuffix .o, $(basename $(SOURCES)))
 
