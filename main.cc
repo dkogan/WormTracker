@@ -285,7 +285,6 @@ int main(int argc, char* argv[])
     Yaxis->axis_align(CA_LEFT | CA_LINE);
     Yaxis->axis_color(FL_BLACK);
 
-    window->resizable(window);
     leftAccum  = new Fl_Output(widgetImage->x() + widgetImage->w(), widgetImage->y(),
                               ACCUM_W, ACCUM_H, "Left accumulator (occupancy-seconds)");
     rightAccum = new Fl_Output(leftAccum->x(), leftAccum->y() + leftAccum->h(),
