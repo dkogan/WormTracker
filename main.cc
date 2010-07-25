@@ -43,6 +43,9 @@ extern "C"
 #define PLOT_H        400
 #define X_AXIS_HEIGHT 30
 #define Y_AXIS_WIDTH  30
+#define ACCUM_W       100
+#define ACCUM_H       BUTTON_H
+
 
 // due to a bug (most likely), the axis aren't drawn completely inside their box. Thus I leave a bit
 // of extra space to see the labels
@@ -56,6 +59,11 @@ static Fl_Button*    goResetButton;
 static Ca_Canvas*    plot = NULL;
 static Ca_X_Axis*    Xaxis;
 static Ca_Y_Axis*    Yaxis;
+
+static Fl_Output* leftAccum;
+static Fl_Output* rightAccum;
+static double     leftAccumValue  = 0.0;
+static double     rightAccumValue = 0.0;
 
 // the analysis could be idle, running, or idle examining data (STOPPED)
 static enum { RESET, RUNNING, STOPPED } analysisState;
@@ -109,6 +117,14 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
                                               numPoints, rightOccupancy, 1,FL_GREEN, CA_NO_POINT);
             Xaxis->maximum(numPoints);
             numPoints++;
+
+            leftAccumValue  += leftOccupancy  / DATA_FRAME_RATE_FPS;
+            rightAccumValue += rightOccupancy / DATA_FRAME_RATE_FPS;
+            char results[128];
+            snprintf(results, sizeof(results), "%.3f", leftAccumValue);
+            leftAccum->value(results);
+            snprintf(results, sizeof(results), "%.3f", rightAccumValue);
+            rightAccum->value(results);
         }
 
         widgetImage->redrawNewFrame();
@@ -172,10 +188,14 @@ static void setResetAnalysis(void)
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Analyze");
 
-    numPoints = 0;
+    numPoints       = 0;
     if(plot) plot->clear();
-    lastLeftPoint = lastRightPoint = NULL;
- 
+    lastLeftPoint   = lastRightPoint = NULL; 
+    leftAccumValue  = 0.0;
+    rightAccumValue = 0.0;
+    leftAccum ->value("0.0");
+    rightAccum->value("0.0");
+
     analysisState = RESET;
 }
 
@@ -235,7 +255,6 @@ int main(int argc, char* argv[])
     widgetImage->callback(widgetImageCallback);
 
     goResetButton = new Fl_Button( 0, source->h(), BUTTON_W, BUTTON_H);
-    setResetAnalysis();
     goResetButton->callback(pressedGoReset);
     goResetButton->deactivate();
 
@@ -267,10 +286,21 @@ int main(int argc, char* argv[])
     Yaxis->axis_color(FL_BLACK);
 
     window->resizable(window);
+    leftAccum  = new Fl_Output(widgetImage->x() + widgetImage->w(), widgetImage->y(),
+                              ACCUM_W, ACCUM_H, "Left accumulator (occupancy-seconds)");
+    rightAccum = new Fl_Output(leftAccum->x(), leftAccum->y() + leftAccum->h(),
+                              ACCUM_W, ACCUM_H, "Right accumulator (occupancy-seconds)");
+    leftAccum ->align(FL_ALIGN_RIGHT);
+    rightAccum->align(FL_ALIGN_RIGHT);
+    leftAccum ->labelcolor(FL_RED);
+    rightAccum->labelcolor(FL_GREEN);
+
     window->end();
     window->show();
 
     processingInit(source->w(), source->h());
+
+    setResetAnalysis();
 
     // I read the data with a tiny delay. This makes sure that I skip old frames (only an issue if I
     // can't keep up with the data rate), but yet got as fast as I can
