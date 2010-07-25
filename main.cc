@@ -42,14 +42,14 @@ extern "C"
 #define PLOT_W        (WINDOW_W - (Y_AXIS_WIDTH + AXIS_EXTRA_SPACE))
 #define PLOT_H        400
 #define X_AXIS_HEIGHT 30
-#define Y_AXIS_WIDTH  30
+#define Y_AXIS_WIDTH  40
 #define ACCUM_W       100
 #define ACCUM_H       BUTTON_H
 
 
 // due to a bug (most likely), the axis aren't drawn completely inside their box. Thus I leave a bit
 // of extra space to see the labels
-#define AXIS_EXTRA_SPACE 30
+#define AXIS_EXTRA_SPACE 40
 
 #define AM_READING_CAMERA (dynamic_cast<CameraSource*>(source) != NULL)
 
