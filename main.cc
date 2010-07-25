@@ -300,18 +300,6 @@ static void pressedGoReset(Fl_Widget* widget __attribute__((unused)), void* cook
     else                              setRunningAnalysis();
 }
 
-static void pressedChdir(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
-{
-    char* dir = fl_dir_chooser("Choose new output directory", "", 0);
-    if(dir != NULL)
-    {
-        if(chdir(dir) == 0)
-            updateChdirButtonLabel();
-        else
-            fl_alert("Couldn't switch to selected directory %s", dir);
-    }
-}
-
 static void updateChdirButtonLabel(void)
 {
     char* path = getcwd(NULL, 0);
@@ -326,6 +314,18 @@ static void updateChdirButtonLabel(void)
     chdirButton->copy_label(label.c_str());
 
     free(path);
+}
+
+static void pressedChdir(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
+{
+    char* dir = fl_dir_chooser("Choose new output directory", "", 0);
+    if(dir != NULL)
+    {
+        if(chdir(dir) == 0)
+            updateChdirButtonLabel();
+        else
+            fl_alert("Couldn't switch to selected directory %s", dir);
+    }
 }
 
 int main(int argc, char* argv[])
