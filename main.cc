@@ -294,7 +294,8 @@ int main(int argc, char* argv[])
 
     if(! *source)
     {
-        fprintf(stderr, "couldn't open source\n");
+        fprintf(stderr, "couldn't open frame source\n");
+        fl_alert("couldn't open frame source");
         delete source;
         return 0;
     }
