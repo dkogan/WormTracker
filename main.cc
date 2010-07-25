@@ -92,7 +92,10 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((u
             // the analysis if I'm running it and rewind the stream
             source->restartStream();
             if(analysisState == RUNNING)
+            {
+                goResetButton->value(0);
                 setStoppedAnalysis();
+            }
             return true;
         }
         return false;
