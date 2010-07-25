@@ -238,6 +238,11 @@ int main(int argc, char* argv[])
 
     plot = new Ca_Canvas( Y_AXIS_WIDTH + AXIS_EXTRA_SPACE, goResetButton->y() + goResetButton->h(), PLOT_W, PLOT_H,
                           "Worm occupancy");
+
+    // This is extremely important for some reason. Without it the plots do not refresh property and
+    // there're artifacts every time the plot is resized
+    plot->box(FL_DOWN_BOX);
+
     Xaxis = new Ca_X_Axis(plot->x(), plot->y() + plot->h(), plot->w(), X_AXIS_HEIGHT, "Points");
     Xaxis->align(FL_ALIGN_BOTTOM);
     Xaxis->minimum(0);
