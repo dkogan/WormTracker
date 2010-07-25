@@ -5,6 +5,7 @@
 #include <time.h>
 #include <string.h>
 #include <assert.h>
+#include <string>
 using namespace std;
 
 #include <FL/Fl.H>
@@ -60,6 +61,7 @@ static FFmpegEncoder videoEncoder;
 static FrameSource*  source;
 static CvFltkWidget* widgetImage;
 static Fl_Button*    goResetButton;
+static Fl_Button*    chdirButton;
 static Ca_Canvas*    plot = NULL;
 static Ca_X_Axis*    Xaxis;
 static Ca_Y_Axis*    Yaxis;
@@ -298,6 +300,34 @@ static void pressedGoReset(Fl_Widget* widget __attribute__((unused)), void* cook
     else                              setRunningAnalysis();
 }
 
+static void pressedChdir(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
+{
+    char* dir = fl_dir_chooser("Choose new output directory", "", 0);
+    if(dir != NULL)
+    {
+        if(chdir(dir) != 0)
+        {
+            fl_alert("Couldn't switch to selected directory %s", dir);
+        }
+    }
+}
+
+static void updateChdirButtonLabel(void)
+{
+    char* path = getcwd(NULL, 0);
+    if(path == NULL)
+    {
+        fl_alert("Couldn't getcwd for some reason...");
+        return;
+    }
+
+    string label("Change directory. Current:\n");
+    label += path;
+    chdirButton->copy_label(label.c_str());
+
+    free(path);
+}
+
 int main(int argc, char* argv[])
 {
     Fl::lock();
@@ -337,6 +367,11 @@ int main(int argc, char* argv[])
     goResetButton = new Fl_Button( widgetImage->w(), 0, BUTTON_W, BUTTON_H);
     goResetButton->callback(pressedGoReset);
     goResetButton->deactivate();
+
+    chdirButton = new Fl_Button( goResetButton->x() + goResetButton->w(), goResetButton->y(),
+                                 BUTTON_W, BUTTON_H);
+    chdirButton->callback(pressedChdir);
+    updateChdirButtonLabel();
 
     plot = new Ca_Canvas( Y_AXIS_WIDTH + AXIS_EXTRA_SPACE, widgetImage->y() + widgetImage->h(),
                           PLOT_W, PLOT_H,
