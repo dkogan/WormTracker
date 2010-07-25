@@ -25,8 +25,8 @@ extern "C"
 #include "wormProcessing.h"
 }
 
-#define DATA_FRAME_RATE_FPS     (1.0 / 15.0) /* I collect at 15 frames per second */
-#define PLAYBACK_FRAME_RATE_FPS 15
+#define DATA_FRAME_RATE_FPS     (1.0 / 15.0) /* I collect at 15 seconds per frame */
+#define SETUP_FRAME_RATE_FPS    5
 #define CIRCLE_RADIUS           50
 #define CIRCLE_COLOR            CV_RGB(0xFF, 0, 0)
 #define POINTED_CIRCLE_COLOR    CV_RGB(0, 0xFF, 0)
@@ -129,7 +129,22 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
 
         widgetImage->redrawNewFrame();
     }
-    Fl::unlock();
+
+    if(!AM_READING_CAMERA && analysisState != RUNNING)
+    {
+        Fl::unlock();
+
+        // reading from a video file and not actually running the analysis yet. In this case I
+        // rewind back to the beginning and delay, to force a reasonable refresh rate
+        source->restartStream();
+
+        struct timespec tv;
+        tv.tv_sec  = 0;
+        tv.tv_nsec = 1e9 / SETUP_FRAME_RATE_FPS;
+        nanosleep(&tv, NULL);
+    }
+    else
+        Fl::unlock();
 }
 
 static void widgetImageCallback(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
