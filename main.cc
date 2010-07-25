@@ -167,6 +167,8 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((u
     }
     else
         Fl::unlock();
+
+    return true;
 }
 
 static void widgetImageCallback(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
