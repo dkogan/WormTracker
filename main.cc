@@ -82,6 +82,20 @@ static CvPoint       pointedCircleCenter = cvPoint(-1, -1);
 
 static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused)))
 {
+    if(buffer == NULL)
+    {
+        if(!AM_READING_CAMERA)
+        {
+            // error ocurred reading the stored video. I likely reached the end of the file. I stop
+            // the analysis if I'm running it and rewind the stream
+            source->restartStream();
+            if(analysisState == RUNNING)
+                setStoppedAnalysis();
+            return true;
+        }
+        return false;
+    }
+
     cvMerge(buffer, buffer, buffer, NULL, *widgetImage);
 
     const CvMat* result = isolateWorms(buffer);
