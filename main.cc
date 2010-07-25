@@ -38,7 +38,7 @@ extern "C"
 #define WINDOW_H      (FRAME_H + BUTTON_H + PLOT_H + X_AXIS_HEIGHT + AXIS_EXTRA_SPACE)
 #define BUTTON_W      100
 #define BUTTON_H      30
-#define PLOT_W        WINDOW_W
+#define PLOT_W        (WINDOW_W - (Y_AXIS_WIDTH + AXIS_EXTRA_SPACE))
 #define PLOT_H        400
 #define X_AXIS_HEIGHT 30
 #define Y_AXIS_WIDTH  30
