@@ -13,7 +13,7 @@ using namespace std;
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_File_Chooser.H>
-#include "Fl_PlotXY/Fl_PlotXY.H"
+#include "cartesian/Cartesian.H"
 
 #include "cvFltkWidget.hh"
 #include "ffmpegInterface.hh"
@@ -30,31 +30,33 @@ extern "C"
 #define POINTED_CIRCLE_COLOR CV_RGB(0, 0xFF, 0)
 
 
-#define FRAME_W   480
-#define FRAME_H   480
-#define CROP_RECT cvRect(80, 0, FRAME_W, FRAME_H)
-#define WINDOW_W  800
-#define WINDOW_H  (FRAME_H + BUTTON_H + PLOT_H)
-#define BUTTON_W  100
-#define BUTTON_H  30
-#define PLOT_W    WINDOW_W
-#define PLOT_H    400
-
+#define FRAME_W       480
+#define FRAME_H       480
+#define CROP_RECT     cvRect(80, 0, FRAME_W, FRAME_H)
+#define WINDOW_W      800
+#define WINDOW_H      (FRAME_H + BUTTON_H + PLOT_H + X_AXIS_HEIGHT)
+#define BUTTON_W      100
+#define BUTTON_H      30
+#define PLOT_W        WINDOW_W
+#define PLOT_H        400
+#define X_AXIS_HEIGHT 30
+#define Y_AXIS_WIDTH  30
 
 
 static FrameSource*  source;
 static CvFltkWidget* widgetImage;
 static Fl_Button*    goResetButton;
-static Fl_PlotXY*    plot;
+static Ca_Canvas*    plot;
 
 // the analysis could be idle, running, or idle examining data (STOPPED)
 static enum { RESET, RUNNING, STOPPED } analysisState;
 
-static int     numPoints;
-static int     leftPlotIndex, rightPlotIndex;
-static CvPoint leftCircleCenter    = cvPoint(-1, -1);
-static CvPoint rightCircleCenter   = cvPoint(-1, -1);
-static CvPoint pointedCircleCenter = cvPoint(-1, -1);
+static int           numPoints;
+static Ca_LinePoint* lastLeftPoint       = NULL;
+static Ca_LinePoint* lastRightPoint      = NULL;
+static CvPoint       leftCircleCenter    = cvPoint(-1, -1);
+static CvPoint       rightCircleCenter   = cvPoint(-1, -1);
+static CvPoint       pointedCircleCenter = cvPoint(-1, -1);
 
 #define HAVE_LEFT_CIRCLE    (leftCircleCenter .x > 0 && leftCircleCenter .y > 0)
 #define HAVE_RIGHT_CIRCLE   (rightCircleCenter.x > 0 && rightCircleCenter.y > 0)
@@ -90,10 +92,12 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
                                  CIRCLE_RADIUS,
                                  &leftOccupancy, &rightOccupancy);
 
-            plot->add(leftPlotIndex,  numPoints, leftOccupancy);
-            plot->add(rightPlotIndex, numPoints, rightOccupancy);
-            numPoints++;
+            lastLeftPoint  = new Ca_LinePoint(lastLeftPoint,
+                                              numPoints, leftOccupancy, 1,FL_RED,   CA_ROUND|CA_BORDER);
+            lastRightPoint = new Ca_LinePoint(lastRightPoint,
+                                              numPoints, leftOccupancy, 1,FL_GREEN, CA_ROUND|CA_BORDER);
             plot->redraw();
+            numPoints++;
         }
 
         widgetImage->redrawNewFrame();
@@ -222,10 +226,28 @@ int main(int argc, char* argv[])
     goResetButton->callback(pressedGoReset);
     goResetButton->deactivate();
 
-    plot = new Fl_PlotXY( 0, goResetButton->y() + goResetButton->h(), PLOT_W, PLOT_H,
+    plot = new Ca_Canvas( Y_AXIS_WIDTH, goResetButton->y() + goResetButton->h(), PLOT_W, PLOT_H,
                           "Worm occupancy");
-    leftPlotIndex  = plot->newline(0,0,0,0, FL_PLOTXY_AUTO,FL_BLACK, "Left occupancy %");
-    rightPlotIndex = plot->newline(0,0,0,0, FL_PLOTXY_AUTO,FL_BLACK, "Right occupancy %");
+    Ca_X_Axis* Xaxis = new Ca_X_Axis(plot->x(), plot->y() + plot->h(), plot->w(), X_AXIS_HEIGHT, "Points");
+    Xaxis->align(FL_ALIGN_BOTTOM);
+//     Xaxis->scale(CA_LOG);
+    Xaxis->minimum(0);
+    Xaxis->maximum(100);
+    Xaxis->label_format("%g");
+    Xaxis->minor_grid_color(fl_gray_ramp(20));
+    Xaxis->major_grid_color(fl_gray_ramp(15));
+    Xaxis->label_grid_color(fl_gray_ramp(10));
+    Xaxis->grid_visible(CA_MINOR_GRID|CA_MAJOR_GRID|CA_LABEL_GRID);
+    Xaxis->major_step(10);
+    Xaxis->label_step(10);
+    Xaxis->axis_color(FL_BLACK);
+    Xaxis->axis_align(CA_BOTTOM|CA_LINE);
+
+    Ca_Y_Axis* Yaxis = new Ca_Y_Axis(0, plot->y(), Y_AXIS_WIDTH, plot->h(), "occupancy ratio");
+    Yaxis->align(FL_ALIGN_RIGHT|FL_ALIGN_TOP);
+    Yaxis->minor_grid_style(FL_DASH);
+    Yaxis->axis_align(CA_LEFT);
+    Yaxis->axis_color(FL_BLACK);
 
     window->resizable(window);
     window->end();
