@@ -1,7 +1,7 @@
 # selects opencv 2.1 or 2.0
 OPENCV_VERSION = 210
 
-FLAGS += -g -O3 -Wall -Wextra -pedantic -MMD
+FLAGS += -g -O3 -Wall -Wextra -MMD
 FLAGS += -DOPENCV_VERSION=$(OPENCV_VERSION)
 FLAGS += -I../fltkVisionUtils/
 
