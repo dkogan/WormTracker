@@ -11,7 +11,6 @@ using namespace std;
 #include <Fl/fl_ask.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Output.H>
-#include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_File_Chooser.H>
