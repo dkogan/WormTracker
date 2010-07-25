@@ -22,14 +22,16 @@ LDLIBS += -lfltk $(OPENCV_LIBS) -lpthread -ldc1394 $(FFMPEG_LIBS) ../fltkVisionU
 
 all: worm3
 
-SOURCE_OBJECTS = $(shell ls *.cc *.c | sed 's/\.c\+/.o/g')
+SOURCE_WILDCARD = *.cc *.c *.cpp
+SOURCES = $(wildcard $(SOURCE_WILDCARD) $(patsubst %,cartesian/%, $(SOURCE_WILDCARD)))
 
+SOURCE_OBJECTS = $(addsuffix .o, $(basename $(SOURCES)))
 
 worm3: $(SOURCE_OBJECTS)
 	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 
 clean:
-	rm -f *.o *.d worm3
+	rm -f $(SOURCE_OBJECTS) *.d worm3
 
 -include *.d
