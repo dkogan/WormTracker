@@ -25,7 +25,7 @@ extern "C"
 }
 
 #define FRAME_RATE_FPS       15
-#define CIRCLE_RADIUS        60
+#define CIRCLE_RADIUS        50
 #define CIRCLE_COLOR         CV_RGB(0xFF, 0, 0)
 #define POINTED_CIRCLE_COLOR CV_RGB(0, 0xFF, 0)
 
