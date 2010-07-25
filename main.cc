@@ -25,6 +25,7 @@ extern "C"
 #include "wormProcessing.h"
 }
 
+#define DATA_FRAME_RATE_FPS     (1.0 / 15.0) /* I collect at 15 frames per second */
 #define PLAYBACK_FRAME_RATE_FPS 15
 #define CIRCLE_RADIUS           50
 #define CIRCLE_COLOR            CV_RGB(0xFF, 0, 0)
@@ -47,7 +48,7 @@ extern "C"
 // of extra space to see the labels
 #define AXIS_EXTRA_SPACE 30
 
-
+#define AM_READING_CAMERA (dynamic_cast<CameraSource*>(source) != NULL)
 
 static FrameSource*  source;
 static CvFltkWidget* widgetImage;
