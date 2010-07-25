@@ -4,9 +4,11 @@
 #include <sstream>
 #include <time.h>
 #include <string.h>
+#include <assert.h>
 using namespace std;
 
 #include <FL/Fl.H>
+#include <Fl/fl_ask.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Output.H>
 #include <FL/Fl_Box.H>
@@ -275,10 +277,23 @@ int main(int argc, char* argv[])
     Fl::lock();
     Fl::visual(FL_RGB);
 
-    // open the first source. If there's an argument, assume it's an input video. Otherwise, try
-    // reading a camera
-    if(argc >= 2) source = new FFmpegDecoder(argv[1], FRAMESOURCE_GRAYSCALE, false, CROP_RECT);
-    else          source = new CameraSource (FRAMESOURCE_GRAYSCALE, false, 0, CROP_RECT);
+    // To load a video file, the last cmdline argument must be the file.
+    // To read a camera, the last cmdline argument must be 0x..., we use it as the camera GUID
+    // Otherwise we try to load any camera
+    if(argc < 2)
+    {
+        source = new CameraSource (FRAMESOURCE_GRAYSCALE, false, 0, CROP_RECT);
+    }
+    else if(strncmp(argv[argc-1], "0x", 2) == 0)
+    {
+        assert(sizeof(long long unsigned int) == sizeof(uint64_t));
+
+        uint64_t guid;
+        sscanf(&argv[argc-1][2], "%llx", (long long unsigned int*)&guid);
+        source = new CameraSource(FRAMESOURCE_GRAYSCALE, false, guid, CROP_RECT);
+    }
+    else
+        source = new FFmpegDecoder(argv[argc-1], FRAMESOURCE_GRAYSCALE, false, CROP_RECT);
 
     if(! *source)
     {
