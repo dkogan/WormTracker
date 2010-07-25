@@ -28,6 +28,7 @@ extern "C"
 
 #define DATA_FRAME_RATE_FPS     (1.0 / 15.0) /* I collect at 15 seconds per frame */
 #define SETUP_FRAME_RATE_FPS    5
+#define VIDEO_ENCODING_FPS      15
 #define CIRCLE_RADIUS           50
 #define CIRCLE_COLOR            CV_RGB(0xFF, 0, 0)
 #define POINTED_CIRCLE_COLOR    CV_RGB(0, 0xFF, 0)
@@ -53,6 +54,8 @@ extern "C"
 #define AXIS_EXTRA_SPACE 40
 
 #define AM_READING_CAMERA (dynamic_cast<CameraSource*>(source) != NULL)
+
+static FFmpegEncoder videoEncoder;
 
 static FrameSource*  source;
 static CvFltkWidget* widgetImage;
@@ -124,6 +127,8 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((u
     {
         if(analysisState == RUNNING)
         {
+            if(videoEncoder) videoEncoder.writeFrameGrayscale(buffer);
+
             double minutes = (double)numPoints / DATA_FRAME_RATE_FPS / 60.0;
             double leftOccupancy, rightOccupancy;
             computeWormOccupancy(result, &leftCircleCenter, &rightCircleCenter,
@@ -244,6 +249,18 @@ static void setResetAnalysis(void)
 
 static void setRunningAnalysis(void)
 {
+    if(AM_READING_CAMERA)
+    {
+        char filename[256];
+        snprintf(filename, sizeof(filename), "experiment.%s.avi", ctime(time(NULL)));
+
+        videoEncoder.close();
+        videoEncoder.open(filename, source->w(), source->h(), VIDEO_ENCODING_FPS, FRAMESOURCE_COLOR);
+
+        if(!videoEncoder)
+            fl_alert("Couldn't start video recording. Video will NOT be written");
+    }
+
     goResetButton->labelfont(FL_HELVETICA);
     goResetButton->labelcolor(FL_BLACK);
     goResetButton->type(FL_TOGGLE_BUTTON);
@@ -256,6 +273,8 @@ static void setRunningAnalysis(void)
 
 static void setStoppedAnalysis(void)
 {
+    videoEncoder.close();
+
     goResetButton->labelfont(FL_HELVETICA);
     goResetButton->labelcolor(FL_BLACK);
     goResetButton->type(FL_NORMAL_BUTTON);
