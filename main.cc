@@ -245,8 +245,6 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    IplImage* buffer = cvCreateImage(cvSize(source->w(), source->h()), IPL_DEPTH_8U, 1);
-
     Fl_Double_Window* window =
         new Fl_Double_Window(WINDOW_W, WINDOW_H, "Wormtracker 3");
     widgetImage = new CvFltkWidget(0, 0, source->w(), source->h(),
@@ -303,6 +301,7 @@ int main(int argc, char* argv[])
 
     // I read the data with a tiny delay. This makes sure that I skip old frames (only an issue if I
     // can't keep up with the data rate), but yet got as fast as I can
+    IplImage* buffer = cvCreateImage(cvSize(source->w(), source->h()), IPL_DEPTH_8U, 1);
     source->startSourceThread(&gotNewFrame, 1e6/PLAYBACK_FRAME_RATE_FPS, buffer);
 
     while (Fl::wait())
