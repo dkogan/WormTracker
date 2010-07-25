@@ -13,6 +13,7 @@ using namespace std;
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_File_Chooser.H>
+#include "Fl_Rotated_Text/Fl_Rotated_Text.H"
 #include "cartesian/Cartesian.H"
 
 #include "cvFltkWidget.hh"
@@ -34,7 +35,7 @@ extern "C"
 #define FRAME_H       480
 #define CROP_RECT     cvRect(80, 0, FRAME_W, FRAME_H)
 #define WINDOW_W      800
-#define WINDOW_H      (FRAME_H + BUTTON_H + PLOT_H + X_AXIS_HEIGHT)
+#define WINDOW_H      (FRAME_H + BUTTON_H + PLOT_H + X_AXIS_HEIGHT + AXIS_EXTRA_SPACE)
 #define BUTTON_W      100
 #define BUTTON_H      30
 #define PLOT_W        WINDOW_W
@@ -42,11 +43,18 @@ extern "C"
 #define X_AXIS_HEIGHT 30
 #define Y_AXIS_WIDTH  30
 
+// due to a bug (most likely), the axis aren't drawn completely inside their box. Thus I leave a bit
+// of extra space to see the labels
+#define AXIS_EXTRA_SPACE 30
+
+
 
 static FrameSource*  source;
 static CvFltkWidget* widgetImage;
 static Fl_Button*    goResetButton;
-static Ca_Canvas*    plot;
+static Ca_Canvas*    plot = NULL;
+static Ca_X_Axis*    Xaxis;
+static Ca_Y_Axis*    Yaxis;
 
 // the analysis could be idle, running, or idle examining data (STOPPED)
 static enum { RESET, RUNNING, STOPPED } analysisState;
@@ -93,9 +101,9 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
                                  &leftOccupancy, &rightOccupancy);
 
             lastLeftPoint  = new Ca_LinePoint(lastLeftPoint,
-                                              numPoints, leftOccupancy, 1,FL_RED,   CA_ROUND|CA_BORDER);
+                                              numPoints, leftOccupancy,  1,FL_RED,   CA_NO_POINT);
             lastRightPoint = new Ca_LinePoint(lastRightPoint,
-                                              numPoints, leftOccupancy, 1,FL_GREEN, CA_ROUND|CA_BORDER);
+                                              numPoints, rightOccupancy, 1,FL_GREEN, CA_NO_POINT);
             plot->redraw();
             numPoints++;
         }
@@ -161,6 +169,10 @@ static void setResetAnalysis(void)
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Analyze");
 
+    numPoints = 0;
+    if(plot) plot->clear();
+    lastLeftPoint = lastRightPoint = NULL;
+ 
     analysisState = RESET;
 }
 
@@ -172,8 +184,6 @@ static void setRunningAnalysis(void)
     goResetButton->label("Stop analysis");
 
     pointedCircleCenter.x = pointedCircleCenter.y = -1;
-    numPoints = 0;
-    plot->clearall();
 
     analysisState = RUNNING;
 }
@@ -226,11 +236,10 @@ int main(int argc, char* argv[])
     goResetButton->callback(pressedGoReset);
     goResetButton->deactivate();
 
-    plot = new Ca_Canvas( Y_AXIS_WIDTH, goResetButton->y() + goResetButton->h(), PLOT_W, PLOT_H,
+    plot = new Ca_Canvas( Y_AXIS_WIDTH + AXIS_EXTRA_SPACE, goResetButton->y() + goResetButton->h(), PLOT_W, PLOT_H,
                           "Worm occupancy");
-    Ca_X_Axis* Xaxis = new Ca_X_Axis(plot->x(), plot->y() + plot->h(), plot->w(), X_AXIS_HEIGHT, "Points");
+    Xaxis = new Ca_X_Axis(plot->x(), plot->y() + plot->h(), plot->w(), X_AXIS_HEIGHT, "Points");
     Xaxis->align(FL_ALIGN_BOTTOM);
-//     Xaxis->scale(CA_LOG);
     Xaxis->minimum(0);
     Xaxis->maximum(100);
     Xaxis->label_format("%g");
@@ -241,12 +250,16 @@ int main(int argc, char* argv[])
     Xaxis->major_step(10);
     Xaxis->label_step(10);
     Xaxis->axis_color(FL_BLACK);
-    Xaxis->axis_align(CA_BOTTOM|CA_LINE);
+    Xaxis->axis_align(CA_BOTTOM | CA_LINE);
 
-    Ca_Y_Axis* Yaxis = new Ca_Y_Axis(0, plot->y(), Y_AXIS_WIDTH, plot->h(), "occupancy ratio");
-    Yaxis->align(FL_ALIGN_RIGHT|FL_ALIGN_TOP);
+    Yaxis = new Ca_Y_Axis(AXIS_EXTRA_SPACE, plot->y(), Y_AXIS_WIDTH, plot->h());
+    Fl_Rotated_Text YaxisLabel("occupancy ratio", FL_HELVETICA, 14, 0, 1);
+    Yaxis->image(&YaxisLabel);
+    Yaxis->minimum(0);
+    Yaxis->maximum(0.2);
+    Yaxis->align(FL_ALIGN_LEFT);
     Yaxis->minor_grid_style(FL_DASH);
-    Yaxis->axis_align(CA_LEFT);
+    Yaxis->axis_align(CA_LEFT | CA_LINE);
     Yaxis->axis_color(FL_BLACK);
 
     window->resizable(window);
