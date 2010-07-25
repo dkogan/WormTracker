@@ -25,10 +25,10 @@ extern "C"
 #include "wormProcessing.h"
 }
 
-#define FRAME_RATE_FPS       15
-#define CIRCLE_RADIUS        50
-#define CIRCLE_COLOR         CV_RGB(0xFF, 0, 0)
-#define POINTED_CIRCLE_COLOR CV_RGB(0, 0xFF, 0)
+#define PLAYBACK_FRAME_RATE_FPS 15
+#define CIRCLE_RADIUS           50
+#define CIRCLE_COLOR            CV_RGB(0xFF, 0, 0)
+#define POINTED_CIRCLE_COLOR    CV_RGB(0, 0xFF, 0)
 
 
 #define FRAME_W       480
@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
 
     // I read the data with a tiny delay. This makes sure that I skip old frames (only an issue if I
     // can't keep up with the data rate), but yet got as fast as I can
-    source->startSourceThread(&gotNewFrame, 1e6/FRAME_RATE_FPS, buffer);
+    source->startSourceThread(&gotNewFrame, 1e6/PLAYBACK_FRAME_RATE_FPS, buffer);
 
     while (Fl::wait())
     {
