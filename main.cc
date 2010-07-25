@@ -100,11 +100,13 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
                                  CIRCLE_RADIUS,
                                  &leftOccupancy, &rightOccupancy);
 
+            Yaxis->rescale(CA_WHEN_MAX, fmax(leftOccupancy, rightOccupancy) );
+
             lastLeftPoint  = new Ca_LinePoint(lastLeftPoint,
                                               numPoints, leftOccupancy,  1,FL_RED,   CA_NO_POINT);
             lastRightPoint = new Ca_LinePoint(lastRightPoint,
                                               numPoints, rightOccupancy, 1,FL_GREEN, CA_NO_POINT);
-            plot->redraw();
+            Xaxis->maximum(numPoints);
             numPoints++;
         }
 
@@ -238,6 +240,7 @@ int main(int argc, char* argv[])
 
     plot = new Ca_Canvas( Y_AXIS_WIDTH + AXIS_EXTRA_SPACE, goResetButton->y() + goResetButton->h(), PLOT_W, PLOT_H,
                           "Worm occupancy");
+    plot->align(FL_ALIGN_TOP);
 
     // This is extremely important for some reason. Without it the plots do not refresh property and
     // there're artifacts every time the plot is resized
@@ -246,12 +249,8 @@ int main(int argc, char* argv[])
     Xaxis = new Ca_X_Axis(plot->x(), plot->y() + plot->h(), plot->w(), X_AXIS_HEIGHT, "Points");
     Xaxis->align(FL_ALIGN_BOTTOM);
     Xaxis->minimum(0);
-    Xaxis->maximum(100);
+    Xaxis->maximum(1);
     Xaxis->label_format("%g");
-    Xaxis->minor_grid_color(fl_gray_ramp(20));
-    Xaxis->major_grid_color(fl_gray_ramp(15));
-    Xaxis->label_grid_color(fl_gray_ramp(10));
-    Xaxis->grid_visible(CA_MINOR_GRID|CA_MAJOR_GRID|CA_LABEL_GRID);
     Xaxis->major_step(10);
     Xaxis->label_step(10);
     Xaxis->axis_color(FL_BLACK);
@@ -261,9 +260,8 @@ int main(int argc, char* argv[])
     Fl_Rotated_Text YaxisLabel("occupancy ratio", FL_HELVETICA, 14, 0, 1);
     Yaxis->image(&YaxisLabel);
     Yaxis->minimum(0);
-    Yaxis->maximum(0.2);
+    Yaxis->maximum(0.01);
     Yaxis->align(FL_ALIGN_LEFT);
-    Yaxis->minor_grid_style(FL_DASH);
     Yaxis->axis_align(CA_LEFT | CA_LINE);
     Yaxis->axis_color(FL_BLACK);
 
