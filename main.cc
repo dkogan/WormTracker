@@ -214,6 +214,9 @@ static void setResetAnalysis(void)
     leftAccum ->value("0.0");
     rightAccum->value("0.0");
 
+    if(!AM_READING_CAMERA)
+        source->restartStream();
+
     analysisState = RESET;
 }
 
