@@ -36,7 +36,7 @@ extern "C"
 #define FRAME_H       480
 #define CROP_RECT     cvRect(80, 0, FRAME_W, FRAME_H)
 #define WINDOW_W      1000
-#define WINDOW_H      (FRAME_H + BUTTON_H + PLOT_H + X_AXIS_HEIGHT + AXIS_EXTRA_SPACE)
+#define WINDOW_H      (FRAME_H + PLOT_H + X_AXIS_HEIGHT + AXIS_EXTRA_SPACE)
 #define BUTTON_W      100
 #define BUTTON_H      30
 #define PLOT_W        (WINDOW_W - (Y_AXIS_WIDTH + AXIS_EXTRA_SPACE))
@@ -289,11 +289,12 @@ int main(int argc, char* argv[])
 
     widgetImage->callback(widgetImageCallback);
 
-    goResetButton = new Fl_Button( 0, source->h(), BUTTON_W, BUTTON_H);
+    goResetButton = new Fl_Button( widgetImage->w(), 0, BUTTON_W, BUTTON_H);
     goResetButton->callback(pressedGoReset);
     goResetButton->deactivate();
 
-    plot = new Ca_Canvas( Y_AXIS_WIDTH + AXIS_EXTRA_SPACE, goResetButton->y() + goResetButton->h(), PLOT_W, PLOT_H,
+    plot = new Ca_Canvas( Y_AXIS_WIDTH + AXIS_EXTRA_SPACE, widgetImage->y() + widgetImage->h(),
+                          PLOT_W, PLOT_H,
                           "Worm occupancy");
     plot->align(FL_ALIGN_TOP);
 
@@ -320,7 +321,7 @@ int main(int argc, char* argv[])
     Yaxis->axis_align(CA_LEFT | CA_LINE);
     Yaxis->axis_color(FL_BLACK);
 
-    leftAccum  = new Fl_Output(widgetImage->x() + widgetImage->w(), widgetImage->y(),
+    leftAccum  = new Fl_Output(widgetImage->x() + widgetImage->w(), goResetButton->y() + goResetButton->h(),
                               ACCUM_W, ACCUM_H, "Left accumulator (occupancy-seconds)");
     rightAccum = new Fl_Output(leftAccum->x(), leftAccum->y() + leftAccum->h(),
                               ACCUM_W, ACCUM_H, "Right accumulator (occupancy-seconds)");
