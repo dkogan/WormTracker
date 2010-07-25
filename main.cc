@@ -27,7 +27,7 @@ extern "C"
 }
 
 #define DATA_FRAME_RATE_FPS     (1.0 / 15.0) /* I collect at 15 seconds per frame */
-#define SETUP_FRAME_RATE_FPS    5
+#define PREVIEW_FRAME_RATE_FPS  15
 #define VIDEO_ENCODING_FPS      15
 #define CIRCLE_RADIUS           50
 #define CIRCLE_COLOR            CV_RGB(0xFF, 0, 0)
@@ -86,7 +86,7 @@ static CvPoint       pointedCircleCenter = cvPoint(-1, -1);
 
 static void setStoppedAnalysis(void);
 
-static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused)))
+static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
 {
     if(buffer == NULL)
     {
@@ -125,8 +125,15 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((u
     // analysis state can change in the FLTK thread, so I err on the side of safety
     Fl::lock();
     {
-        if(analysisState == RUNNING)
+        static uint64_t nextDataTimestamp_us = 0ull;
+        // when using the camera, I get frames much faster than I use them to keep the program
+        // looking visually responsive. Here I limit my data collection rate
+        if( analysisState == RUNNING && (!AM_READING_CAMERA || timestamp_us > nextDataTimestamp_us) )
         {
+            if(nextDataTimestamp_us == 0ull)
+                nextDataTimestamp_us = timestamp_us;
+            nextDataTimestamp_us += 1e6/DATA_FRAME_RATE_FPS;
+
             if(videoEncoder) videoEncoder.writeFrameGrayscale(buffer);
 
             double minutes = (double)numPoints / DATA_FRAME_RATE_FPS / 60.0;
@@ -168,7 +175,7 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((u
 
         struct timespec tv;
         tv.tv_sec  = 0;
-        tv.tv_nsec = 1e9 / SETUP_FRAME_RATE_FPS;
+        tv.tv_nsec = 1e9 / PREVIEW_FRAME_RATE_FPS;
         nanosleep(&tv, NULL);
     }
     else
@@ -379,8 +386,8 @@ int main(int argc, char* argv[])
     IplImage* buffer = cvCreateImage(cvSize(source->w(), source->h()), IPL_DEPTH_8U, 1);
 
     // If reading from a stored video file, go as fast as possible
-    if(AM_READING_CAMERA) source->startSourceThread(&gotNewFrame, 1e6/DATA_FRAME_RATE_FPS, buffer);
-    else                  source->startSourceThread(&gotNewFrame, 0,                       buffer);
+    if(AM_READING_CAMERA) source->startSourceThread(&gotNewFrame, 1e6/PREVIEW_FRAME_RATE_FPS, buffer);
+    else                  source->startSourceThread(&gotNewFrame, 0,                          buffer);
 
     while (Fl::wait())
     {
