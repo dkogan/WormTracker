@@ -104,6 +104,7 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
     {
         if(analysisState == RUNNING)
         {
+            double minutes = (double)numPoints / DATA_FRAME_RATE_FPS / 60.0;
             double leftOccupancy, rightOccupancy;
             computeWormOccupancy(result, &leftCircleCenter, &rightCircleCenter,
                                  CIRCLE_RADIUS,
@@ -112,10 +113,12 @@ void gotNewFrame(IplImage* buffer, uint64_t timestamp_us __attribute__((unused))
             Yaxis->rescale(CA_WHEN_MAX, fmax(leftOccupancy, rightOccupancy) );
 
             lastLeftPoint  = new Ca_LinePoint(lastLeftPoint,
-                                              numPoints, leftOccupancy,  1,FL_RED,   CA_NO_POINT);
+                                              minutes,
+                                              leftOccupancy,  1,FL_RED,   CA_NO_POINT);
             lastRightPoint = new Ca_LinePoint(lastRightPoint,
-                                              numPoints, rightOccupancy, 1,FL_GREEN, CA_NO_POINT);
-            Xaxis->maximum(numPoints);
+                                              minutes,
+                                              rightOccupancy, 1,FL_GREEN, CA_NO_POINT);
+            Xaxis->maximum(minutes);
             numPoints++;
 
             leftAccumValue  += leftOccupancy  / DATA_FRAME_RATE_FPS;
@@ -279,7 +282,7 @@ int main(int argc, char* argv[])
     // there're artifacts every time the plot is resized
     plot->box(FL_DOWN_BOX);
 
-    Xaxis = new Ca_X_Axis(plot->x(), plot->y() + plot->h(), plot->w(), X_AXIS_HEIGHT, "Points");
+    Xaxis = new Ca_X_Axis(plot->x(), plot->y() + plot->h(), plot->w(), X_AXIS_HEIGHT, "Minutes");
     Xaxis->align(FL_ALIGN_BOTTOM);
     Xaxis->minimum(0);
     Xaxis->maximum(1);
