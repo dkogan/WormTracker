@@ -34,22 +34,26 @@ void processingCleanup(void)
     cvReleaseMat(&workImageInt);
 }
 
-const CvMat* isolateWorms(const IplImage* input)
+const CvMat* isolateWorms(const IplImage* input,
+                          visionParameters_t* params)
 {
+    unsigned int presmoothing_w = 1 + 2*params->presmoothing_r;
+    unsigned int detrend_w      = 1 + 2*params->detrend_r;
+
     cvConvert(input, workImage0);
-    cvSmooth(workImage0, workImage0, CV_GAUSSIAN, PRESMOOTHING_W, PRESMOOTHING_W, 0, 0);
-    cvSmooth(workImage0, workImage1, CV_GAUSSIAN, DETREND_W,      DETREND_W,      0, 0);
-    cvDiv(workImage0, workImage1, workImage0, DETREND_SCALE);
+    cvSmooth(workImage0, workImage0, CV_GAUSSIAN, presmoothing_w, presmoothing_w, 0, 0);
+    cvSmooth(workImage0, workImage1, CV_GAUSSIAN, detrend_w,      detrend_w,      0, 0);
+    cvDiv(workImage0, workImage1, workImage0, params->detrend_scale);
 
     cvConvert(workImage0, workImageInt);
 
     cvAdaptiveThreshold(workImageInt, workImageInt,
                         255,CV_ADAPTIVE_THRESH_MEAN_C,
                         CV_THRESH_BINARY_INV,
-                        ADAPTIVE_THRESHOLD_KERNEL, ADAPTIVE_THRESHOLD);
+                        params->adaptive_threshold_kernel, params->adaptive_threshold);
 
-    cvErode (workImageInt, workImageInt, NULL, MORPHOLOGIC_DEPTH);
-    cvDilate(workImageInt, workImageInt, NULL, MORPHOLOGIC_DEPTH);
+    cvErode (workImageInt, workImageInt, NULL, params->morphologic_depth);
+    cvDilate(workImageInt, workImageInt, NULL, params->morphologic_depth);
 
     return workImageInt;
 }
