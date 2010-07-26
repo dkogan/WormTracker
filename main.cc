@@ -258,7 +258,7 @@ static void createBaseOutputFilename(void)
     strftime(timestamp, sizeof(timestamp), "%F-%T", tm);
 
     baseFilename = timestamp;
-    baseFilename += "-";
+    baseFilename += "_";
     baseFilename += experimentName->value();
 }
 
