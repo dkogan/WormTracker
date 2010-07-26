@@ -437,8 +437,6 @@ int main(int argc, char* argv[])
     rightAccum->align(FL_ALIGN_RIGHT);
     leftAccum ->labelcolor(FL_RED);
     rightAccum->labelcolor(FL_GREEN);
-    leftAccum->deactivate();
-    rightAccum->deactivate();
 
     window->end();
     window->show();
