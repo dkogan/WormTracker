@@ -8,12 +8,12 @@ static CvMat*         workImage1;
 static CvMat*         workImageInt;
 
 // these are the defaults
-#define PRESMOOTHING_W            19
-#define DETREND_W                 51
-#define DETREND_SCALE             180
-#define ADAPTIVE_THRESHOLD_KERNEL 21
-#define ADAPTIVE_THRESHOLD        5
-#define MORPHOLOGIC_DEPTH         2
+#define PRESMOOTHING_W            12
+#define DETREND_W                 37
+#define DETREND_SCALE             196
+#define ADAPTIVE_THRESHOLD_KERNEL 15
+#define ADAPTIVE_THRESHOLD        15
+#define MORPHOLOGIC_DEPTH         1
 
 void processingInit(int w, int h)
 {
