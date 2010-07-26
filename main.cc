@@ -262,6 +262,56 @@ static void createBaseOutputFilename(void)
     baseFilename += experimentName->value();
 }
 
+static void openPlotPipe(void)
+{
+    // I want a PDF, but this PDF needs to contain analysis results that I do
+    // not yet have. I thus create a postscript file, then modify the data
+    // in-place, and convert to PDF. I'd do this with the PDF directly, but it
+    // doesn't store its data in plain ASCII
+    string command("./feedGnuplot.pl --lines --domain "
+                   "--xlabel \"Minutes\" --ylabel \"Occupancy ratio\" "
+                   "--le \"Left circle occupancy total 888.88888 ratio-seconds\" "
+                   "--le \"Right circle occupancy total 888.88888 ratio-seconds\" "
+                   "--title \"Worm occupancy for ");
+    command += experimentName->value();
+    command += "\" --hardcopy \"";
+    command += baseFilename;
+    command += ".ps\"";
+
+    plotPipe = popen(command.c_str(), "w");
+    if(plotPipe == NULL)
+        fl_alert("Couldn't start the plotting pipe. No plot will be generated");
+}
+
+static void finalizePlot(void)
+{
+    string leftLegend("Left circle occupancy (total ");
+    leftLegend += leftAccum->value();
+    leftLegend += " ratio-seconds)";
+
+    string rightLegend("Right circle occupancy (total ");
+    rightLegend += rightAccum->value();
+    rightLegend += " ratio-seconds)";
+
+    string command;
+
+    command = "perl -p -i -e 's/Left circle occupancy total 888.88888 ratio-seconds/";
+    command += leftLegend + "/' " + baseFilename + ".ps";
+    system(command.c_str());
+
+    command = "perl -p -i -e 's/Right circle occupancy total 888.88888 ratio-seconds/";
+    command += rightLegend + "/' " + baseFilename + ".ps";
+    system(command.c_str());
+
+    command = "ps2pdf ";
+    command += baseFilename + ".ps " + baseFilename + ".pdf";
+    system(command.c_str());
+
+    command = "rm ";
+    command += baseFilename + ".ps";
+    system(command.c_str());
+}
+
 static void setResetAnalysis(void)
 {
     goResetButton->labelfont(FL_HELVETICA_BOLD);
@@ -298,17 +348,7 @@ static void setRunningAnalysis(void)
             fl_alert("Couldn't start video recording. Video will NOT be written");
     }
 
-    string command("./feedGnuplot.pl --lines --domain "
-                   "--xlabel \"Minutes\" --ylabel \"Occupancy ratio\" --le Left --le Right "
-                   "--title \"Worm occupancy for ");
-    command += experimentName->value();
-    command += "\" --hardcopy \"";
-    command += baseFilename;
-    command += ".pdf\"";
-
-    plotPipe = popen(command.c_str(), "w");
-    if(plotPipe == NULL)
-        fl_alert("Couldn't start the plotting pipe. No plot will be generated");
+    openPlotPipe();
 
     goResetButton->labelfont(FL_HELVETICA);
     goResetButton->labelcolor(FL_BLACK);
@@ -328,6 +368,8 @@ static void setStoppedAnalysis(void)
     {
         fclose(plotPipe);
         plotPipe = NULL;
+
+        finalizePlot();
     }
 
     goResetButton->labelfont(FL_HELVETICA);
