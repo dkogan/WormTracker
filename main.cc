@@ -105,6 +105,12 @@ static string baseFilename;
 
 static void setStoppedAnalysis(void);
 
+static void forceStopAnalysis(void)
+{
+    goResetButton->value(0);
+    setStoppedAnalysis();
+}
+
 static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
 {
     if(buffer == NULL)
@@ -115,10 +121,8 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
             // the analysis if I'm running it and rewind the stream
             source->restartStream();
             if(analysisState == RUNNING)
-            {
-                goResetButton->value(0);
-                setStoppedAnalysis();
-            }
+                forceStopAnalysis();
+
             return true;
         }
         return false;
@@ -200,7 +204,7 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
             rightAccum->value(results);
 
             if(minutes > duration->value())
-                setStoppedAnalysis();
+                forceStopAnalysis();
         }
 
         widgetImage->redrawNewFrame();
