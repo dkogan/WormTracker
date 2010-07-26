@@ -275,7 +275,7 @@ static void setRunningAnalysis(void)
         time_t tnow = time(NULL);
         struct tm* tm = localtime(&tnow);
         strftime(timestamp, sizeof(timestamp), "%F-%T", tm);
-        snprintf(filename, sizeof(filename), "%s-%s.avi", experimentName->value(), timestamp);
+        snprintf(filename, sizeof(filename), "%s-%s.avi", timestamp, experimentName->value());
 
         videoEncoder.close();
         videoEncoder.open(filename, source->w(), source->h(), VIDEO_ENCODING_FPS, FRAMESOURCE_COLOR);
