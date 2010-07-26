@@ -506,9 +506,9 @@ int main(int argc, char* argv[])
     Yaxis->axis_color(FL_BLACK);
 
     leftAccum  = new Fl_Output(widgetImage->x() + widgetImage->w(), goResetButton->y() + goResetButton->h(),
-                              ACCUM_W, ACCUM_H, "Left accumulator (occupancy-seconds)");
+                              ACCUM_W, ACCUM_H, "Left accumulator (ratio-seconds)");
     rightAccum = new Fl_Output(leftAccum->x(), leftAccum->y() + leftAccum->h(),
-                              ACCUM_W, ACCUM_H, "Right accumulator (occupancy-seconds)");
+                              ACCUM_W, ACCUM_H, "Right accumulator (ratio-seconds)");
     leftAccum ->align(FL_ALIGN_RIGHT);
     rightAccum->align(FL_ALIGN_RIGHT);
     leftAccum ->labelcolor(FL_RED);
