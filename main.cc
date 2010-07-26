@@ -255,7 +255,7 @@ static void createBaseOutputFilename(void)
     char timestamp[128];
     time_t tnow = time(NULL);
     struct tm* tm = localtime(&tnow);
-    strftime(timestamp, sizeof(timestamp), "%F-%T", tm);
+    strftime(timestamp, sizeof(timestamp), "%F_%H-%M-%S", tm);
 
     // using quotes because the name can have spaces
     baseFilename = timestamp;
