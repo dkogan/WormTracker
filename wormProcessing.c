@@ -7,15 +7,13 @@ static CvMat*         workImage0;
 static CvMat*         workImage1;
 static CvMat*         workImageInt;
 
-#define PRESMOOTHING_R            9
-#define DETREND_R                 25
+// these are the defaults
+#define PRESMOOTHING_W            19
+#define DETREND_W                 51
 #define DETREND_SCALE             180
 #define ADAPTIVE_THRESHOLD_KERNEL 21
 #define ADAPTIVE_THRESHOLD        5
 #define MORPHOLOGIC_DEPTH         2
-
-#define PRESMOOTHING_W (1 + 2*PRESMOOTHING_R)
-#define DETREND_W      (1 + 2*DETREND_R)
 
 void processingInit(int w, int h)
 {
@@ -34,15 +32,22 @@ void processingCleanup(void)
     cvReleaseMat(&workImageInt);
 }
 
+void getDefaultParameters(visionParameters_t* params)
+{
+    params->presmoothing_w            = PRESMOOTHING_W;
+    params->detrend_w                 = DETREND_W;
+    params->detrend_scale             = DETREND_SCALE;
+    params->adaptive_threshold_kernel = ADAPTIVE_THRESHOLD_KERNEL;
+    params->adaptive_threshold        = ADAPTIVE_THRESHOLD;
+    params->morphologic_depth         = MORPHOLOGIC_DEPTH;
+}
+
 const CvMat* isolateWorms(const IplImage* input,
                           visionParameters_t* params)
 {
-    unsigned int presmoothing_w = 1 + 2*params->presmoothing_r;
-    unsigned int detrend_w      = 1 + 2*params->detrend_r;
-
     cvConvert(input, workImage0);
-    cvSmooth(workImage0, workImage0, CV_GAUSSIAN, presmoothing_w, presmoothing_w, 0, 0);
-    cvSmooth(workImage0, workImage1, CV_GAUSSIAN, detrend_w,      detrend_w,      0, 0);
+    cvSmooth(workImage0, workImage0, CV_GAUSSIAN, params->presmoothing_w, params->presmoothing_w, 0, 0);
+    cvSmooth(workImage0, workImage1, CV_GAUSSIAN, params->detrend_w,      params->detrend_w,      0, 0);
     cvDiv(workImage0, workImage1, workImage0, params->detrend_scale);
 
     cvConvert(workImage0, workImageInt);

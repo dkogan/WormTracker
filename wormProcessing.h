@@ -5,8 +5,8 @@
 
 typedef struct
 {
-    unsigned int presmoothing_r;
-    unsigned int detrend_r;
+    unsigned int presmoothing_w;
+    unsigned int detrend_w;
     double       detrend_scale;
     unsigned int adaptive_threshold_kernel;
     unsigned int adaptive_threshold;
@@ -15,6 +15,7 @@ typedef struct
 
 void processingInit(int w, int h);
 void processingCleanup(void);
+void getDefaultParameters(visionParameters_t* params);
 const CvMat* isolateWorms(const IplImage* input,
                           visionParameters_t* params);
 void computeWormOccupancy(const CvMat* isolatedWorms,

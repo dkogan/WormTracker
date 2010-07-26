@@ -16,6 +16,7 @@ using namespace std;
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
+#include <FL/Fl_Value_Slider.H>
 #include "Fl_Rotated_Text/Fl_Rotated_Text.H"
 #include "cartesian/Cartesian.H"
 
@@ -49,6 +50,8 @@ extern "C"
 #define Y_AXIS_WIDTH  80
 #define ACCUM_W       180
 #define ACCUM_H       BUTTON_H
+#define PARAM_SLIDER_W 180
+#define PARAM_SLIDER_H 25
 
 
 // due to a bug (most likely), the axis aren't drawn completely inside their box. Thus I leave a bit
@@ -67,6 +70,14 @@ static Fl_Input*     experimentName;
 static Ca_Canvas*    plot = NULL;
 static Ca_X_Axis*    Xaxis;
 static Ca_Y_Axis*    Yaxis;
+
+// the vision parameters
+static Fl_Value_Slider* param_presmoothing_w;
+static Fl_Value_Slider* param_detrend_w;
+static Fl_Value_Slider* param_detrend_scale;
+static Fl_Value_Slider* param_adaptive_threshold_kernel;
+static Fl_Value_Slider* param_adaptive_threshold;
+static Fl_Value_Slider* param_morphologic_depth;
 
 static Fl_Output* leftAccum;
 static Fl_Output* rightAccum;
@@ -114,7 +125,23 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
 
     cvMerge(buffer, buffer, buffer, NULL, *widgetImage);
 
-    const CvMat* result = isolateWorms(buffer);
+    visionParameters_t params;
+    Fl::lock();
+    {
+        params.presmoothing_w            = param_presmoothing_w           ->value();
+        params.detrend_w                 = param_detrend_w                ->value();
+        params.detrend_scale             = param_detrend_scale            ->value();
+        params.adaptive_threshold_kernel = param_adaptive_threshold_kernel->value();
+        params.adaptive_threshold        = param_adaptive_threshold       ->value();
+        params.morphologic_depth         = param_morphologic_depth        ->value();
+    }
+    Fl::unlock();
+    // these must be odd
+    params.presmoothing_w            |= 1;
+    params.detrend_w                 |= 1;
+    params.adaptive_threshold_kernel |= 1;
+
+    const CvMat* result = isolateWorms(buffer, &params);
     cvSetImageCOI(*widgetImage, 1);
     cvCopy(result, *widgetImage);
     cvSetImageCOI(*widgetImage, 0);
@@ -428,6 +455,64 @@ static void changedExperimentName(Fl_Widget* widget __attribute__((unused)), voi
     experimentName->redraw();
 }
 
+static void setupVisionParameters(void)
+{
+    param_presmoothing_w            = new Fl_Value_Slider(rightAccum->x(), rightAccum->y() + rightAccum->h(),
+                                                          PARAM_SLIDER_W, PARAM_SLIDER_H,
+                                                          "Preesmoothing width");
+    param_detrend_w                 = new Fl_Value_Slider(rightAccum->x(), param_presmoothing_w->y() + param_presmoothing_w->h(),
+                                                          PARAM_SLIDER_W, PARAM_SLIDER_H,
+                                                          "Detrend width");
+    param_detrend_scale             = new Fl_Value_Slider(rightAccum->x(), param_detrend_w->y() + param_detrend_w->h(),
+                                                          PARAM_SLIDER_W, PARAM_SLIDER_H,
+                                                          "Detrend scaling");
+    param_adaptive_threshold_kernel = new Fl_Value_Slider(rightAccum->x(), param_detrend_scale->y() + param_detrend_scale->h(),
+                                                          PARAM_SLIDER_W, PARAM_SLIDER_H,
+                                                          "Adaptive threshold kernel");
+    param_adaptive_threshold        = new Fl_Value_Slider(rightAccum->x(), param_adaptive_threshold_kernel->y() + param_adaptive_threshold_kernel->h(),
+                                                          PARAM_SLIDER_W, PARAM_SLIDER_H,
+                                                          "Adaptive threshold");
+    param_morphologic_depth         = new Fl_Value_Slider(rightAccum->x(), param_adaptive_threshold->y() + param_adaptive_threshold->h(),
+                                                          PARAM_SLIDER_W, PARAM_SLIDER_H,
+                                                          "Morphologic depth");
+    param_presmoothing_w           ->align(FL_ALIGN_RIGHT);
+    param_detrend_w                ->align(FL_ALIGN_RIGHT);
+    param_detrend_scale            ->align(FL_ALIGN_RIGHT);
+    param_adaptive_threshold_kernel->align(FL_ALIGN_RIGHT);
+    param_adaptive_threshold       ->align(FL_ALIGN_RIGHT);
+    param_morphologic_depth        ->align(FL_ALIGN_RIGHT);
+
+    param_presmoothing_w           ->type(FL_HOR_SLIDER);
+    param_detrend_w                ->type(FL_HOR_SLIDER);
+    param_detrend_scale            ->type(FL_HOR_SLIDER);
+    param_adaptive_threshold_kernel->type(FL_HOR_SLIDER);
+    param_adaptive_threshold       ->type(FL_HOR_SLIDER);
+    param_morphologic_depth        ->type(FL_HOR_SLIDER);
+
+    visionParameters_t params;
+    getDefaultParameters(&params);
+    param_presmoothing_w           ->bounds(params.presmoothing_w            / 3, params.presmoothing_w            * 3);
+    param_detrend_w                ->bounds(params.detrend_w                 / 3, params.detrend_w                 * 3);
+    param_detrend_scale            ->bounds(params.detrend_scale             / 3, params.detrend_scale             * 3);
+    param_adaptive_threshold_kernel->bounds(params.adaptive_threshold_kernel / 3, params.adaptive_threshold_kernel * 3);
+    param_adaptive_threshold       ->bounds(params.adaptive_threshold        / 3, params.adaptive_threshold        * 3);
+    param_morphologic_depth        ->bounds(params.morphologic_depth         / 3, params.morphologic_depth         * 3);
+
+    param_presmoothing_w           ->value(params.presmoothing_w);
+    param_detrend_w                ->value(params.detrend_w);
+    param_detrend_scale            ->value(params.detrend_scale);
+    param_adaptive_threshold_kernel->value(params.adaptive_threshold_kernel);
+    param_adaptive_threshold       ->value(params.adaptive_threshold);
+    param_morphologic_depth        ->value(params.morphologic_depth);
+
+    param_presmoothing_w           ->precision(0); // integers
+    param_detrend_w                ->precision(0); // integers
+    param_detrend_scale            ->precision(1); // accurate to 0.1
+    param_adaptive_threshold_kernel->precision(0); // integers
+    param_adaptive_threshold       ->precision(0); // integers
+    param_morphologic_depth        ->precision(0); // integers
+}
+
 int main(int argc, char* argv[])
 {
     Fl::lock();
@@ -515,6 +600,8 @@ int main(int argc, char* argv[])
     rightAccum->align(FL_ALIGN_RIGHT);
     leftAccum ->labelcolor(FL_RED);
     rightAccum->labelcolor(FL_GREEN);
+
+    setupVisionParameters();
 
     window->end();
     window->show();
