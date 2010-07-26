@@ -158,7 +158,8 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
             lastRightPoint = new Ca_LinePoint(lastRightPoint,
                                               minutes,
                                               rightOccupancy, 1,FL_GREEN, CA_NO_POINT);
-            fprintf(plotPipe, "%f %f %f\n", minutes, leftOccupancy, rightOccupancy);
+            if(plotPipe)
+                fprintf(plotPipe, "%f %f %f\n", minutes, leftOccupancy, rightOccupancy);
 
             Xaxis->maximum(minutes);
             numPoints++;
@@ -307,6 +308,8 @@ static void setRunningAnalysis(void)
     command += ".pdf\"";
 
     plotPipe = popen(command.c_str(), "w");
+    if(plotPipe == NULL)
+        fl_alert("Couldn't start the plotting pipe. No plot will be generated");
 
     goResetButton->labelfont(FL_HELVETICA);
     goResetButton->labelcolor(FL_BLACK);
