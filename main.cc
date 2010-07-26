@@ -269,7 +269,7 @@ static void openPlotPipe(void)
     // in-place, and convert to PDF. I'd do this with the PDF directly, but it
     // doesn't store its data in plain ASCII
     string command("feedGnuplot.pl --lines --domain "
-                   "--xlabel \"Minutes\" --ylabel \"Occupancy ratio\" "
+                   "--xlabel Minutes --ylabel \"Occupancy ratio\" "
                    "--le \"Left circle occupancy total 888.88888 ratio-seconds\" "
                    "--le \"Right circle occupancy total 888.88888 ratio-seconds\" "
                    "--title \"Worm occupancy for ");
