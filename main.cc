@@ -37,19 +37,19 @@ extern "C"
 #define POINTED_CIRCLE_COLOR    CV_RGB(0, 0xFF, 0)
 
 
-#define FRAME_W       480
-#define FRAME_H       480
-#define CROP_RECT     cvRect(80, 0, FRAME_W, FRAME_H)
-#define WINDOW_W      1200
-#define WINDOW_H      (FRAME_H + PLOT_H + X_AXIS_HEIGHT + AXIS_EXTRA_SPACE)
-#define BUTTON_W      320
-#define BUTTON_H      60
-#define PLOT_W        (WINDOW_W - (Y_AXIS_WIDTH + AXIS_EXTRA_SPACE))
-#define PLOT_H        400
-#define X_AXIS_HEIGHT 30
-#define Y_AXIS_WIDTH  80
-#define ACCUM_W       180
-#define ACCUM_H       BUTTON_H
+#define FRAME_W        480
+#define FRAME_H        480
+#define CROP_RECT      cvRect(80, 0, FRAME_W, FRAME_H)
+#define WINDOW_W       1200
+#define WINDOW_H       (FRAME_H + PLOT_H + X_AXIS_HEIGHT + AXIS_EXTRA_SPACE)
+#define BUTTON_W       320
+#define BUTTON_H       60
+#define PLOT_W         (WINDOW_W - (Y_AXIS_WIDTH + AXIS_EXTRA_SPACE))
+#define PLOT_H         400
+#define X_AXIS_HEIGHT  30
+#define Y_AXIS_WIDTH   80
+#define ACCUM_W        180
+#define ACCUM_H        BUTTON_H
 #define PARAM_SLIDER_W 180
 #define PARAM_SLIDER_H 25
 
