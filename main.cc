@@ -62,15 +62,15 @@ extern "C"
 
 static FFmpegEncoder videoEncoder;
 
-static FrameSource*  source;
-static CvFltkWidget* widgetImage;
-static Fl_Button*    goResetButton;
-static Fl_Button*    chdirButton;
+static FrameSource*     source;
+static CvFltkWidget*    widgetImage;
+static Fl_Button*       goResetButton;
+static Fl_Button*       chdirButton;
 static Fl_Value_Slider* duration;
-static Fl_Input*     experimentName;
-static Ca_Canvas*    plot = NULL;
-static Ca_X_Axis*    Xaxis;
-static Ca_Y_Axis*    Yaxis;
+static Fl_Input*        experimentName;
+static Ca_Canvas*       plot = NULL;
+static Ca_X_Axis*       Xaxis;
+static Ca_Y_Axis*       Yaxis;
 
 // the vision parameters
 static Fl_Value_Slider* param_presmoothing_w;
