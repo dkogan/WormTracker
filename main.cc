@@ -28,7 +28,7 @@ extern "C"
 #include "wormProcessing.h"
 }
 
-#define DATA_FRAME_RATE_FPS     (1.0 / 15.0) /* I collect at 15 seconds per frame */
+#define DATA_FRAME_RATE_FPS     1 /* I collect at 1 frame per second */
 #define PREVIEW_FRAME_RATE_FPS  15
 #define VIDEO_ENCODING_FPS      15
 #define CIRCLE_RADIUS           50
