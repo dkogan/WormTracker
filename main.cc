@@ -349,7 +349,8 @@ static void setResetAnalysis(void)
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Analyze");
     experimentName->activate();
-    duration->activate();
+    duration      ->activate();
+    chdirButton   ->activate();
 
     numPoints       = 0;
     if(plot) plot->clear();
@@ -386,7 +387,8 @@ static void setRunningAnalysis(void)
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Stop analysis");
     experimentName->deactivate();
-    duration->deactivate();
+    duration      ->deactivate();
+    chdirButton   ->deactivate();
 
     pointedCircleCenter.x = pointedCircleCenter.y = -1;
 
