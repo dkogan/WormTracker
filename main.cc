@@ -12,6 +12,7 @@ using namespace std;
 #include <Fl/fl_ask.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Output.H>
+#include <FL/Fl_Input.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_File_Chooser.H>
@@ -62,6 +63,7 @@ static FrameSource*  source;
 static CvFltkWidget* widgetImage;
 static Fl_Button*    goResetButton;
 static Fl_Button*    chdirButton;
+static Fl_Input*     experimentName;
 static Ca_Canvas*    plot = NULL;
 static Ca_X_Axis*    Xaxis;
 static Ca_Y_Axis*    Yaxis;
@@ -186,6 +188,14 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
     return true;
 }
 
+static void goResetButton_handleActivation(void)
+{
+    if( !experimentName->value() || experimentName->value()[0] == '\0' || !HAVE_CIRCLES)
+        goResetButton->deactivate();
+    else
+        goResetButton->activate();
+}
+
 static void widgetImageCallback(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
 {
     if(Fl::event() == FL_LEAVE)
@@ -231,8 +241,7 @@ static void widgetImageCallback(Fl_Widget* widget __attribute__((unused)), void*
     default: ;
     }
 
-    if(HAVE_CIRCLES && analysisState == RESET)
-        goResetButton->activate();
+    goResetButton_handleActivation();
 }
 
 static void setResetAnalysis(void)
@@ -241,6 +250,7 @@ static void setResetAnalysis(void)
     goResetButton->labelcolor(FL_RED);
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Analyze");
+    experimentName->activate();
 
     numPoints       = 0;
     if(plot) plot->clear();
@@ -275,6 +285,7 @@ static void setRunningAnalysis(void)
     goResetButton->labelcolor(FL_BLACK);
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Stop analysis");
+    experimentName->deactivate();
 
     pointedCircleCenter.x = pointedCircleCenter.y = -1;
 
@@ -328,6 +339,17 @@ static void pressedChdir(Fl_Widget* widget __attribute__((unused)), void* cookie
     }
 }
 
+static void changedExperimentName(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
+{
+    if( !experimentName->value() || experimentName->value()[0] == '\0' )
+        experimentName->color(FL_RED);
+    else
+        experimentName->color(FL_WHITE);
+
+    goResetButton_handleActivation();
+    experimentName->redraw();
+}
+
 int main(int argc, char* argv[])
 {
     Fl::lock();
@@ -364,14 +386,20 @@ int main(int argc, char* argv[])
 
     widgetImage->callback(widgetImageCallback);
 
-    goResetButton = new Fl_Button( widgetImage->w(), 0, BUTTON_W, BUTTON_H);
-    goResetButton->callback(pressedGoReset);
-    goResetButton->deactivate();
-
-    chdirButton = new Fl_Button( goResetButton->x() + goResetButton->w(), goResetButton->y(),
+    chdirButton = new Fl_Button( widgetImage->x() + widgetImage->w(), widgetImage->y(),
                                  BUTTON_W, BUTTON_H);
     chdirButton->callback(pressedChdir);
     updateChdirButtonLabel();
+
+    experimentName = new Fl_Input( widgetImage->x() + widgetImage->w(), chdirButton->y() + chdirButton->h(),
+                                   BUTTON_W, BUTTON_H, "Experiment name");
+    experimentName->align(FL_ALIGN_RIGHT);
+    experimentName->callback(changedExperimentName);
+    experimentName->when(FL_WHEN_CHANGED);
+
+    goResetButton = new Fl_Button( widgetImage->x() + widgetImage->w(), experimentName->y() + experimentName->h(),
+                                   2 * BUTTON_W, BUTTON_H);
+    goResetButton->callback(pressedGoReset);
 
     plot = new Ca_Canvas( Y_AXIS_WIDTH + AXIS_EXTRA_SPACE, widgetImage->y() + widgetImage->h(),
                           PLOT_W, PLOT_H,
@@ -417,7 +445,9 @@ int main(int argc, char* argv[])
 
     processingInit(source->w(), source->h());
 
+    changedExperimentName(NULL, NULL);
     setResetAnalysis();
+    goResetButton_handleActivation();
 
     // I read the data with a tiny delay. This makes sure that I skip old frames (only an issue if I
     // can't keep up with the data rate), but yet got as fast as I can
