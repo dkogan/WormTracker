@@ -566,7 +566,7 @@ int main(int argc, char* argv[])
         source = new CameraSource(FRAMESOURCE_GRAYSCALE, false, guid, CROP_RECT);
     }
     else
-        source = new FFmpegDecoder(argv[argc-1], FRAMESOURCE_GRAYSCALE, false, CROP_RECT);
+        source = new FFmpegDecoder(argv[argc-1], FRAMESOURCE_GRAYSCALE, false);
 
     if(! *source)
     {
