@@ -198,6 +198,9 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
             leftAccum->value(results);
             snprintf(results, sizeof(results), "%.3f", rightAccumValue);
             rightAccum->value(results);
+
+            if(minutes > duration->value())
+                setStoppedAnalysis();
         }
 
         widgetImage->redrawNewFrame();
