@@ -15,7 +15,6 @@ using namespace std;
 #include <FL/Fl_Output.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_File_Chooser.H>
 #include "Fl_Rotated_Text/Fl_Rotated_Text.H"
 #include "cartesian/Cartesian.H"
