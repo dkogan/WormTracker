@@ -567,6 +567,7 @@ int main(int argc, char* argv[])
     duration->bounds(1, 300);
     duration->precision(0); // integers
     duration->value(20);
+    duration->type(FL_HOR_SLIDER);
 
     experimentName = new Fl_Input( widgetImage->x() + widgetImage->w(), chdirButton->y() + chdirButton->h(),
                                    BUTTON_W, BUTTON_H, "Experiment name");
