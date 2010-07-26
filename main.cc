@@ -366,7 +366,7 @@ static void setStoppedAnalysis(void)
     videoEncoder.close();
     if(plotPipe)
     {
-        fclose(plotPipe);
+        pclose(plotPipe);
         plotPipe = NULL;
 
         finalizePlot();
