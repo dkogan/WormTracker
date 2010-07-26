@@ -12,6 +12,7 @@ static CvMat*         workImageInt;
 #define DETREND_SCALE             180
 #define ADAPTIVE_THRESHOLD_KERNEL 21
 #define ADAPTIVE_THRESHOLD        5
+#define MORPHOLOGIC_DEPTH         2
 
 #define PRESMOOTHING_W (1 + 2*PRESMOOTHING_R)
 #define DETREND_W      (1 + 2*DETREND_R)
@@ -47,8 +48,8 @@ const CvMat* isolateWorms(const IplImage* input)
                         CV_THRESH_BINARY_INV,
                         ADAPTIVE_THRESHOLD_KERNEL, ADAPTIVE_THRESHOLD);
 
-    cvErode (workImageInt, workImageInt, NULL, 2);
-    cvDilate(workImageInt, workImageInt, NULL, 2);
+    cvErode (workImageInt, workImageInt, NULL, MORPHOLOGIC_DEPTH);
+    cvDilate(workImageInt, workImageInt, NULL, MORPHOLOGIC_DEPTH);
 
     return workImageInt;
 }
