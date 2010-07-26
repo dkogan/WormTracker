@@ -272,7 +272,7 @@ static void setRunningAnalysis(void)
     {
         char filename[256];
         time_t tnow = time(NULL);
-        snprintf(filename, sizeof(filename), "experiment.%s.avi", ctime(&tnow));
+        snprintf(filename, sizeof(filename), "%s-%s.avi", experimentName->value(), ctime(&tnow));
 
         videoEncoder.close();
         videoEncoder.open(filename, source->w(), source->h(), VIDEO_ENCODING_FPS, FRAMESOURCE_COLOR);
