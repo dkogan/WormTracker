@@ -344,7 +344,7 @@ static void setRunningAnalysis(void)
     {
         string videoFilename = baseFilename + ".avi";
         videoEncoder.close();
-        videoEncoder.open(videoFilename.c_str(), source->w(), source->h(), VIDEO_ENCODING_FPS, FRAMESOURCE_COLOR);
+        videoEncoder.open(videoFilename.c_str(), source->w(), source->h(), VIDEO_ENCODING_FPS, FRAMESOURCE_GRAYSCALE);
 
         if(!videoEncoder)
             fl_alert("Couldn't start video recording. Video will NOT be written");
