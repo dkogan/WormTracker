@@ -427,10 +427,7 @@ int main(int argc, char* argv[])
     if(AM_READING_CAMERA) source->startSourceThread(&gotNewFrame, 1e6/PREVIEW_FRAME_RATE_FPS, buffer);
     else                  source->startSourceThread(&gotNewFrame, 0,                          buffer);
 
-    while (Fl::wait())
-    {
-    }
-
+    Fl::run();
     Fl::unlock();
 
     delete source;
