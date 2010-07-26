@@ -349,15 +349,39 @@ static void finalizePlot(void)
     system(command.c_str());
 }
 
+static void deactivateExperimentWidgets(void)
+{
+    param_presmoothing_w           ->deactivate();
+    param_detrend_w                ->deactivate();
+    param_detrend_scale            ->deactivate();
+    param_adaptive_threshold_kernel->deactivate();
+    param_adaptive_threshold       ->deactivate();
+    param_morphologic_depth        ->deactivate();
+    experimentName                 ->deactivate();
+    duration                       ->deactivate();
+    chdirButton                    ->deactivate();
+}
+
+static void activateExperimentWidgets(void)
+{
+    param_presmoothing_w           ->activate();
+    param_detrend_w                ->activate();
+    param_detrend_scale            ->activate();
+    param_adaptive_threshold_kernel->activate();
+    param_adaptive_threshold       ->activate();
+    param_morphologic_depth        ->activate();
+    experimentName                 ->activate();
+    duration                       ->activate();
+    chdirButton                    ->activate();
+}
+
 static void setResetAnalysis(void)
 {
     goResetButton->labelfont(FL_HELVETICA_BOLD);
     goResetButton->labelcolor(FL_RED);
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Analyze");
-    experimentName->activate();
-    duration      ->activate();
-    chdirButton   ->activate();
+    activateExperimentWidgets();
 
     numPoints       = 0;
     if(plot) plot->clear();
@@ -393,9 +417,7 @@ static void setRunningAnalysis(void)
     goResetButton->labelcolor(FL_BLACK);
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Stop analysis");
-    experimentName->deactivate();
-    duration      ->deactivate();
-    chdirButton   ->deactivate();
+    deactivateExperimentWidgets();
 
     pointedCircleCenter.x = pointedCircleCenter.y = -1;
 
