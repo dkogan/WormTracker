@@ -83,6 +83,8 @@ static CvPoint       leftCircleCenter    = cvPoint(-1, -1);
 static CvPoint       rightCircleCenter   = cvPoint(-1, -1);
 static CvPoint       pointedCircleCenter = cvPoint(-1, -1);
 
+static string baseFilename;
+
 #define HAVE_LEFT_CIRCLE    (leftCircleCenter .x > 0 && leftCircleCenter .y > 0)
 #define HAVE_RIGHT_CIRCLE   (rightCircleCenter.x > 0 && rightCircleCenter.y > 0)
 #define HAVE_CIRCLES        (HAVE_LEFT_CIRCLE && HAVE_RIGHT_CIRCLE)
@@ -244,6 +246,18 @@ static void widgetImageCallback(Fl_Widget* widget __attribute__((unused)), void*
     goResetButton_handleActivation();
 }
 
+static void createBaseOutputFilename(void)
+{
+    char timestamp[128];
+    time_t tnow = time(NULL);
+    struct tm* tm = localtime(&tnow);
+    strftime(timestamp, sizeof(timestamp), "%F-%T", tm);
+
+    baseFilename = timestamp;
+    baseFilename += "-";
+    baseFilename += experimentName->value();
+}
+
 static void setResetAnalysis(void)
 {
     goResetButton->labelfont(FL_HELVETICA_BOLD);
@@ -268,17 +282,13 @@ static void setResetAnalysis(void)
 
 static void setRunningAnalysis(void)
 {
+    createBaseOutputFilename();
+
     if(AM_READING_CAMERA)
     {
-        char filename [256];
-        char timestamp[256];
-        time_t tnow = time(NULL);
-        struct tm* tm = localtime(&tnow);
-        strftime(timestamp, sizeof(timestamp), "%F-%T", tm);
-        snprintf(filename, sizeof(filename), "%s-%s.avi", timestamp, experimentName->value());
-
+        string videoFilename = baseFilename + ".avi";
         videoEncoder.close();
-        videoEncoder.open(filename, source->w(), source->h(), VIDEO_ENCODING_FPS, FRAMESOURCE_COLOR);
+        videoEncoder.open(videoFilename.c_str(), source->w(), source->h(), VIDEO_ENCODING_FPS, FRAMESOURCE_COLOR);
 
         if(!videoEncoder)
             fl_alert("Couldn't start video recording. Video will NOT be written");
