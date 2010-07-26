@@ -5,6 +5,7 @@
 #include <time.h>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 #include <string>
 using namespace std;
 
@@ -83,6 +84,7 @@ static CvPoint       leftCircleCenter    = cvPoint(-1, -1);
 static CvPoint       rightCircleCenter   = cvPoint(-1, -1);
 static CvPoint       pointedCircleCenter = cvPoint(-1, -1);
 
+FILE* plotPipe = NULL;
 static string baseFilename;
 
 #define HAVE_LEFT_CIRCLE    (leftCircleCenter .x > 0 && leftCircleCenter .y > 0)
@@ -156,6 +158,8 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
             lastRightPoint = new Ca_LinePoint(lastRightPoint,
                                               minutes,
                                               rightOccupancy, 1,FL_GREEN, CA_NO_POINT);
+            fprintf(plotPipe, "%f %f %f\n", minutes, leftOccupancy, rightOccupancy);
+
             Xaxis->maximum(minutes);
             numPoints++;
 
@@ -294,6 +298,16 @@ static void setRunningAnalysis(void)
             fl_alert("Couldn't start video recording. Video will NOT be written");
     }
 
+    string command("./feedGnuplot.pl --lines --domain "
+                   "--xlabel \"Minutes\" --ylabel \"Occupancy ratio\" --le Left --le Right "
+                   "--title \"Worm occupancy for ");
+    command += experimentName->value();
+    command += "\" --hardcopy \"";
+    command += baseFilename;
+    command += ".pdf\"";
+
+    plotPipe = popen(command.c_str(), "w");
+
     goResetButton->labelfont(FL_HELVETICA);
     goResetButton->labelcolor(FL_BLACK);
     goResetButton->type(FL_TOGGLE_BUTTON);
@@ -308,6 +322,11 @@ static void setRunningAnalysis(void)
 static void setStoppedAnalysis(void)
 {
     videoEncoder.close();
+    if(plotPipe)
+    {
+        fclose(plotPipe);
+        plotPipe = NULL;
+    }
 
     goResetButton->labelfont(FL_HELVETICA);
     goResetButton->labelcolor(FL_BLACK);
