@@ -257,9 +257,12 @@ static void createBaseOutputFilename(void)
     struct tm* tm = localtime(&tnow);
     strftime(timestamp, sizeof(timestamp), "%F-%T", tm);
 
-    baseFilename = timestamp;
+    // using quotes because the name can have spaces
+    baseFilename = "\"";
+    baseFilename += timestamp;
     baseFilename += "_";
     baseFilename += experimentName->value();
+    baseFilename += "\"";
 }
 
 static void openPlotPipe(void)
@@ -274,9 +277,9 @@ static void openPlotPipe(void)
                    "--le \"Right circle occupancy total 888.88888 ratio-seconds\" "
                    "--title \"Worm occupancy for ");
     command += experimentName->value();
-    command += "\" --hardcopy \"";
+    command += "\" --hardcopy ";
     command += baseFilename;
-    command += ".ps\"";
+    command += ".ps";
 
     plotPipe = popen(command.c_str(), "w");
     if(plotPipe == NULL)
