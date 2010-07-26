@@ -66,6 +66,7 @@ static FrameSource*  source;
 static CvFltkWidget* widgetImage;
 static Fl_Button*    goResetButton;
 static Fl_Button*    chdirButton;
+static Fl_Value_Slider* duration;
 static Fl_Input*     experimentName;
 static Ca_Canvas*    plot = NULL;
 static Ca_X_Axis*    Xaxis;
@@ -348,6 +349,7 @@ static void setResetAnalysis(void)
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Analyze");
     experimentName->activate();
+    duration->activate();
 
     numPoints       = 0;
     if(plot) plot->clear();
@@ -384,6 +386,7 @@ static void setRunningAnalysis(void)
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Stop analysis");
     experimentName->deactivate();
+    duration->deactivate();
 
     pointedCircleCenter.x = pointedCircleCenter.y = -1;
 
@@ -553,6 +556,12 @@ int main(int argc, char* argv[])
                                  BUTTON_W, BUTTON_H);
     chdirButton->callback(pressedChdir);
     updateChdirButtonLabel();
+
+    duration = new Fl_Value_Slider( chdirButton->x() + chdirButton->w(), chdirButton->y(),
+                                    BUTTON_W, BUTTON_H, "Duration (min)" );
+    duration->bounds(1, 300);
+    duration->precision(0); // integers
+    duration->value(20);
 
     experimentName = new Fl_Input( widgetImage->x() + widgetImage->w(), chdirButton->y() + chdirButton->h(),
                                    BUTTON_W, BUTTON_H, "Experiment name");
