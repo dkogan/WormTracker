@@ -655,6 +655,7 @@ int main(int argc, char* argv[])
 
     setupVisionParameters();
 
+    window->resizable(window);
     window->end();
     window->show();
 
