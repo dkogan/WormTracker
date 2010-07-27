@@ -33,7 +33,7 @@ extern "C"
 #define DATA_FRAME_RATE_FPS     1 /* I collect at 1 frame per second */
 #define PREVIEW_FRAME_RATE_FPS  15
 #define VIDEO_ENCODING_FPS      15
-#define CIRCLE_RADIUS           50
+#define CIRCLE_RADIUS           52
 #define CIRCLE_COLOR            CV_RGB(0xFF, 0, 0)
 #define POINTED_CIRCLE_COLOR    CV_RGB(0, 0xFF, 0)
 
