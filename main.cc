@@ -17,6 +17,7 @@ using namespace std;
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Value_Slider.H>
+#include <FL/Fl_Check_Button.H>
 #include "Fl_Rotated_Text/Fl_Rotated_Text.H"
 #include "cartesian/Cartesian.H"
 
@@ -49,7 +50,7 @@ extern "C"
 #define X_AXIS_HEIGHT  30
 #define Y_AXIS_WIDTH   80
 #define ACCUM_W        180
-#define ACCUM_H        BUTTON_H
+#define ACCUM_H        30
 #define PARAM_SLIDER_W 180
 #define PARAM_SLIDER_H 25
 
@@ -71,6 +72,7 @@ static Fl_Input*        experimentName;
 static Ca_Canvas*       plot = NULL;
 static Ca_X_Axis*       Xaxis;
 static Ca_Y_Axis*       Yaxis;
+static Fl_Check_Button* showProcessedVision;
 
 // the vision parameters
 static Fl_Value_Slider* param_presmoothing_w;
@@ -131,6 +133,7 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
     cvMerge(buffer, buffer, buffer, NULL, *widgetImage);
 
     visionParameters_t params;
+    bool doShowProcessedVision;
     Fl::lock();
     {
         params.presmoothing_w            = param_presmoothing_w           ->value();
@@ -139,6 +142,7 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
         params.adaptive_threshold_kernel = param_adaptive_threshold_kernel->value();
         params.adaptive_threshold        = param_adaptive_threshold       ->value();
         params.morphologic_depth         = param_morphologic_depth        ->value();
+        doShowProcessedVision            = showProcessedVision            ->value();
     }
     Fl::unlock();
     // these must be odd
@@ -147,9 +151,12 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
     params.adaptive_threshold_kernel |= 1;
 
     const CvMat* result = isolateWorms(buffer, &params);
-    cvSetImageCOI(*widgetImage, 1);
-    cvCopy(result, *widgetImage);
-    cvSetImageCOI(*widgetImage, 0);
+    if(doShowProcessedVision)
+    {
+        cvSetImageCOI(*widgetImage, 1);
+        cvCopy(result, *widgetImage);
+        cvSetImageCOI(*widgetImage, 0);
+    }
 
     if(HAVE_LEFT_CIRCLE)
         cvCircle(*widgetImage, leftCircleCenter,    CIRCLE_RADIUS, CIRCLE_COLOR, 1, 8);
@@ -633,7 +640,11 @@ int main(int argc, char* argv[])
     Yaxis->axis_align(CA_LEFT | CA_LINE);
     Yaxis->axis_color(FL_BLACK);
 
-    leftAccum  = new Fl_Output(widgetImage->x() + widgetImage->w(), goResetButton->y() + goResetButton->h(),
+    showProcessedVision = new Fl_Check_Button(widgetImage->x() + widgetImage->w(), goResetButton->y() + goResetButton->h(),
+                                              ACCUM_W, ACCUM_H, "Display processed image");
+    showProcessedVision->value(1);
+
+    leftAccum  = new Fl_Output(widgetImage->x() + widgetImage->w(), showProcessedVision->y() + showProcessedVision->h(),
                               ACCUM_W, ACCUM_H, "Left accumulator (ratio-seconds)");
     rightAccum = new Fl_Output(leftAccum->x(), leftAccum->y() + leftAccum->h(),
                               ACCUM_W, ACCUM_H, "Right accumulator (ratio-seconds)");
