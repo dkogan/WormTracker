@@ -19,6 +19,8 @@ using namespace std;
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Check_Button.H>
+#include <FL/Fl_Round_Button.H>
+#include <FL/Fl_Group.H>
 #include "Fl_Rotated_Text/Fl_Rotated_Text.H"
 #include "cartesian/Cartesian.H"
 
@@ -75,6 +77,8 @@ static Ca_Canvas*       plot = NULL;
 static Ca_X_Axis*       Xaxis;
 static Ca_Y_Axis*       Yaxis;
 static Fl_Check_Button* showProcessedVision;
+static Fl_Group*        circleOrientation;
+static Fl_Round_Button* orientationLeftRight;
 
 // the vision parameters
 static Fl_Value_Slider* param_presmoothing_w;
@@ -261,7 +265,10 @@ static void widgetImageCallback(Fl_Widget* widget __attribute__((unused)), void*
         return;
     }
 
-    bool onLeftHalf = (Fl::event_x() - widget->x()) < FRAME_W/2;
+    bool onLeftHalf = orientationLeftRight->value() ?
+        ( (Fl::event_x() - widget->x()) < FRAME_W/2 ) :
+        ( (Fl::event_y() - widget->y()) < FRAME_H/2 );
+
     switch(Fl::event())
     {
     case FL_MOVE:
@@ -369,6 +376,7 @@ static void deactivateExperimentWidgets(void)
     experimentName                 ->deactivate();
     duration                       ->deactivate();
     chdirButton                    ->deactivate();
+    orientationLeftRight           ->deactivate();
 }
 
 static void activateExperimentWidgets(void)
@@ -382,6 +390,7 @@ static void activateExperimentWidgets(void)
     experimentName                 ->activate();
     duration                       ->activate();
     chdirButton                    ->activate();
+    orientationLeftRight           ->activate();
 }
 
 static void setResetAnalysis(void)
@@ -499,6 +508,13 @@ static void changedExperimentName(Fl_Widget* widget __attribute__((unused)), voi
 
     goResetButton_handleActivation();
     experimentName->redraw();
+}
+
+static void changedOrientation(Fl_Widget* widget __attribute__((unused)), void* cookie __attribute__((unused)))
+{
+    // I touched the orientation selector, so kill my circles
+    leftCircleCenter    = cvPoint(-1, -1);
+    rightCircleCenter   = cvPoint(-1, -1);
 }
 
 static void setupVisionParameters(void)
@@ -645,7 +661,37 @@ int main(int argc, char* argv[])
     Yaxis->axis_align(CA_LEFT | CA_LINE);
     Yaxis->axis_color(FL_BLACK);
 
-    showProcessedVision = new Fl_Check_Button(widgetImage->x() + widgetImage->w(), goResetButton->y() + goResetButton->h(),
+    circleOrientation = new Fl_Group(widgetImage->x() + widgetImage->w(),
+                                     goResetButton->y() + goResetButton->h(),
+                                     2*ACCUM_W, ACCUM_H);
+    {
+#define SETUP_RADIO_BUTTON(o)                   \
+        do {                                    \
+            o->type(FL_RADIO_BUTTON);           \
+            o->down_box(FL_ROUND_DOWN_BOX);     \
+            o->callback(changedOrientation);    \
+            o->when(FL_WHEN_CHANGED);           \
+        } while(0)
+
+        circleOrientation->box(FL_THIN_UP_FRAME);
+        {
+            orientationLeftRight = new Fl_Round_Button(widgetImage->x() + widgetImage->w(),
+                                                       goResetButton->y() + goResetButton->h(),
+                                                       ACCUM_W, ACCUM_H, "Left/Right");
+            SETUP_RADIO_BUTTON(orientationLeftRight);
+            orientationLeftRight->value(1);
+        }
+        {
+            Fl_Round_Button* o = new Fl_Round_Button(widgetImage->x() + widgetImage->w() + ACCUM_W,
+                                                     goResetButton->y() + goResetButton->h(),
+                                                     ACCUM_W, ACCUM_H, "Top/Bottom");
+            SETUP_RADIO_BUTTON(o);
+            o->value(0);
+        }
+    }
+    circleOrientation->end();
+
+    showProcessedVision = new Fl_Check_Button(widgetImage->x() + widgetImage->w(), circleOrientation->y() + circleOrientation->h(),
                                               ACCUM_W, ACCUM_H, "Display processed image");
     showProcessedVision->value(1);
 
