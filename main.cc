@@ -37,7 +37,8 @@ extern "C"
 #define CIRCLE_RADIUS           52
 #define CIRCLE_COLOR            CV_RGB(0xFF, 0, 0)
 #define POINTED_CIRCLE_COLOR    CV_RGB(0, 0xFF, 0)
-
+#define DURATION_MIN            1 /* minutes */
+#define DURATION_MAX            300 /* minutes */
 
 #define FRAME_W        480
 #define FRAME_H        480
@@ -425,6 +426,9 @@ static void setRunningAnalysis(void)
     goResetButton->labelcolor(FL_BLACK);
     goResetButton->type(FL_TOGGLE_BUTTON);
     goResetButton->label("Stop analysis");
+
+    if(duration->value() < DURATION_MIN) duration->value(DURATION_MIN);
+    if(duration->value() > DURATION_MAX) duration->value(DURATION_MAX);
     deactivateExperimentWidgets();
 
     pointedCircleCenter.x = pointedCircleCenter.y = -1;
@@ -598,7 +602,7 @@ int main(int argc, char* argv[])
 
     duration = new Fl_Value_Input( chdirButton->x() + chdirButton->w(), chdirButton->y(),
                                     BUTTON_W, BUTTON_H, "Duration (min)" );
-    duration->bounds(1, 300);
+    duration->bounds(DURATION_MIN, DURATION_MAX);
     duration->precision(0); // integers
     duration->value(20);
     duration->type(FL_HOR_SLIDER);
