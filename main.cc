@@ -17,6 +17,7 @@ using namespace std;
 #include <FL/Fl_Button.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Value_Slider.H>
+#include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Check_Button.H>
 #include "Fl_Rotated_Text/Fl_Rotated_Text.H"
 #include "cartesian/Cartesian.H"
@@ -67,7 +68,7 @@ static FrameSource*     source;
 static CvFltkWidget*    widgetImage;
 static Fl_Button*       goResetButton;
 static Fl_Button*       chdirButton;
-static Fl_Value_Slider* duration;
+static Fl_Value_Input*  duration;
 static Fl_Input*        experimentName;
 static Ca_Canvas*       plot = NULL;
 static Ca_X_Axis*       Xaxis;
@@ -595,7 +596,7 @@ int main(int argc, char* argv[])
     chdirButton->callback(pressedChdir);
     updateChdirButtonLabel();
 
-    duration = new Fl_Value_Slider( chdirButton->x() + chdirButton->w(), chdirButton->y(),
+    duration = new Fl_Value_Input( chdirButton->x() + chdirButton->w(), chdirButton->y(),
                                     BUTTON_W, BUTTON_H, "Duration (min)" );
     duration->bounds(1, 300);
     duration->precision(0); // integers
