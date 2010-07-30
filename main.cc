@@ -97,6 +97,7 @@ static double     rightAccumValue = 0.0;
 static enum { RESET, RUNNING, STOPPED } analysisState;
 
 static int           numPoints;
+static uint64_t      nextDataTimestamp_us;
 static Ca_LinePoint* lastLeftPoint       = NULL;
 static Ca_LinePoint* lastRightPoint      = NULL;
 static CvPoint       leftCircleCenter    = cvPoint(-1, -1);
@@ -177,7 +178,6 @@ static bool gotNewFrame(IplImage* buffer, uint64_t timestamp_us)
     // analysis state can change in the FLTK thread, so I err on the side of safety
     Fl::lock();
     {
-        static uint64_t nextDataTimestamp_us = 0ull;
         // when using the camera, I get frames much faster than I use them to keep the program
         // looking visually responsive. Here I limit my data collection rate
         if( analysisState == RUNNING && (!AM_READING_CAMERA || timestamp_us > nextDataTimestamp_us) )
@@ -442,6 +442,7 @@ static void setRunningAnalysis(void)
 
     pointedCircleCenter.x = pointedCircleCenter.y = -1;
 
+    nextDataTimestamp_us = 0ull;
     analysisState = RUNNING;
 }
 
