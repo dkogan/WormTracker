@@ -1,8 +1,8 @@
-# selects opencv 2.1 or 2.0
-OPENCV_VERSION = 210
+# debian places the headers and libraries in a different (much more sensible) location than the
+# upstream opencv builds. This variable selects this
+OPENCV_DEBIAN_PACKAGES = 1
 
-FLAGS += -g -O3 -Wall -Wextra -MMD
-FLAGS += -DOPENCV_VERSION=$(OPENCV_VERSION)
+FLAGS += -g -Wall -Wextra -MMD
 FLAGS += -I../fltkVisionUtils/
 
 CXXFLAGS = $(FLAGS)
@@ -11,10 +11,12 @@ CFLAGS = $(FLAGS) --std=gnu99
 LDFLAGS  += -g
 LDLIBS   += -lX11 -lXft -lXinerama
 
-ifeq ($(OPENCV_VERSION), 210)
+ifeq ($(OPENCV_DEBIAN_PACKAGES), 0)
   OPENCV_LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui
 else
-  OPENCV_LIBS = -lcv
+  CXXFLAGS += -DOPENCV_DEBIAN_PACKAGES
+  CFLAGS += -DOPENCV_DEBIAN_PACKAGES
+  OPENCV_LIBS = -lcv -lhighgui
 endif
 
 FFMPEG_LIBS = -lavformat -lavcodec -lswscale -lavutil
