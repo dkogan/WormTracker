@@ -26,7 +26,7 @@ using namespace std;
 
 #include "cvFltkWidget.hh"
 #include "ffmpegInterface.hh"
-#include "cameraSource.hh"
+#include "cameraSource_IIDC.hh"
 
 extern "C"
 {
@@ -63,7 +63,7 @@ extern "C"
 // of extra space to see the labels
 #define AXIS_EXTRA_SPACE 40
 
-#define AM_READING_CAMERA (dynamic_cast<CameraSource*>(source) != NULL)
+#define AM_READING_CAMERA (dynamic_cast<CameraSource_IIDC*>(source) != NULL)
 
 static FFmpegEncoder videoEncoder;
 
@@ -585,14 +585,14 @@ int main(int argc, char* argv[])
     // To read a camera, the last cmdline argument must be 0x..., we use it as the camera GUID
     // Otherwise we try to load any camera
     if(argc < 2)
-        source = new CameraSource (FRAMESOURCE_GRAYSCALE, false, 0, CROP_RECT);
+        source = new CameraSource_IIDC (FRAMESOURCE_GRAYSCALE, false, 0, CROP_RECT);
     else if(strncmp(argv[argc-1], "0x", 2) == 0)
     {
         assert(sizeof(long long unsigned int) == sizeof(uint64_t));
 
         uint64_t guid;
         sscanf(&argv[argc-1][2], "%llx", (long long unsigned int*)&guid);
-        source = new CameraSource(FRAMESOURCE_GRAYSCALE, false, guid, CROP_RECT);
+        source = new CameraSource_IIDC(FRAMESOURCE_GRAYSCALE, false, guid, CROP_RECT);
     }
     else
         source = new FFmpegDecoder(argv[argc-1], FRAMESOURCE_GRAYSCALE, false);
