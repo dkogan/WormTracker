@@ -2,10 +2,13 @@
 # upstream opencv builds. This variable selects this
 OPENCV_DEBIAN_PACKAGES = 1
 
+# needed for newer ffmpeg
+CXXFLAGS=-D__STDC_CONSTANT_MACROS
+
 FLAGS += -g -Wall -Wextra -MMD
 FLAGS += -I../fltkVisionUtils/
 
-CXXFLAGS = $(FLAGS)
+CXXFLAGS += $(FLAGS)
 CFLAGS = $(FLAGS) --std=gnu99
 
 LDFLAGS  += -g
